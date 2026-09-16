@@ -1,0 +1,115 @@
+
+/* Advanced CSS Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%; /* Prevent font scaling in mobile Safari */
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  background-color: #F9FAFB;
+  font-family: "Oxanium", serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+img, picture, video, canvas {
+  max-width: 100%;
+  display: block;
+}
+
+input, button, textarea, select {
+  font: inherit;
+  line-height: inherit;
+}
+
+button {
+  background: none;
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+input[type="text"] {
+  &:focus {
+    border-color: #ff6b6b; // Focus color
+    outline: none;
+  }
+
+  &:focus-visible {
+    border-color: #ff3b3b; // Distinct focus-visible color
+  }
+}
+
+.custom-radio-group {
+  display: flex;
+  gap: 16px; // Space between radio buttons
+}
+
+.custom-radio {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px;
+  position: relative;
+
+  input[type="radio"] {
+    display: none; // Hide the default radio button
+  }
+
+  .radio-checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cccccc;
+    border-radius: 50%;
+    margin-right: 8px;
+    position: relative;
+    transition: all 0.3s ease;
+
+    &::after {
+      content: '';
+      width: 12px;
+      height: 12px;
+      background-color: #ff6b6b; // Checked color
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 0.3s ease;
+    }
+  }
+
+  input[type="radio"]:checked + .radio-checkmark {
+    border-color: #ff6b6b;
+
+    &::after {
+      transform: translate(-50%, -50%) scale(1); // Scale to full size
+    }
+  }
+
+  &:hover .radio-checkmark {
+    border-color: #888888; // Change border color on hover
+  }
+}
+
