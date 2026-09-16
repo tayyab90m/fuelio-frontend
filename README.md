@@ -1,6 +1,6 @@
 # Fuelio
 
-Coach dashboard for meal planning, macro tracking, and client nutrition/training plans. REST API client for the companion [fuelio backend](../fitness-dashboard-backend).
+Coach dashboard for meal planning, macro tracking, and client nutrition/training plans. REST API client for the companion [fuelio-backend](../fuelio-backend).
 
 # Getting Started with Create React App
 
