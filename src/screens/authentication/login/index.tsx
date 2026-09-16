@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
-import { EyeIcon, EyeClosedIcon, Mail, Lock } from 'lucide-react'; // Importing eye icons
-import Logo from '../../../assets/images/logo.png';
-import ImgBg from '../../../assets/images/bossbodies2.jpg';
+import { EyeIcon, EyeClosedIcon, Mail, Lock, Flame } from 'lucide-react'; // Importing eye icons
 import VideoPlayer from '../../../components/videoPlayer';
 import { loginSchema } from '../../../utils/validation/authentication';
 import { onLogin } from '../../../redux/user/action';
@@ -29,9 +27,14 @@ const Login = () => {
       <div className="flex flex-col md:flex-row max-w-5xl bg-white rounded-lg shadow-lg overflow-hidden w-full">
         {/* Left Section */}
         <div className="w-full md:w-1/2 px-6 sm:px-8 py-8 md:py-12">
-          <img src={Logo} className="w-10 mx-auto md:mx-0" alt="Logo" />
+          <div className="flex items-center justify-center md:justify-start gap-2">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-white">
+              <Flame className="w-5 h-5" />
+            </div>
+            <span className="text-lg font-bold text-gray-800">Fuelio</span>
+          </div>
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 text-center md:text-left mb-4 mt-6">
-            Welcome to <span className="text-[#E1172C]">Boss Bodies</span>
+            Welcome to <span className="text-primary">Fuelio</span>
           </h2>
           <Formik
             initialValues={{
@@ -95,7 +98,7 @@ const Login = () => {
 
                 {/* Submit Button */}
                 <button
-                  className="w-full font-bold px-4 py-2 text-white bg-[#E1172C] rounded-lg hover:bg-red-500 transition-all focus:outline-none focus:ring-1 focus:ring-red-400 focus:ring-offset-2"
+                  className="w-full font-bold px-4 py-2 text-white bg-primary rounded-lg hover:opacity-90 transition-all focus:outline-none focus:ring-1 focus:ring-red-400 focus:ring-offset-2"
                   type="submit"
                 >
                   Submit
@@ -106,8 +109,12 @@ const Login = () => {
         </div>
 
         {/* Right Section */}
-        <div className="hidden md:block md:w-1/2 bg-cover bg-center">
-          <img className="object-cover h-full w-full" src={ImgBg} alt="Background" />
+        <div className="hidden md:flex md:w-1/2 items-center justify-center bg-gradient-to-br from-primary to-secondary p-8">
+          <div className="text-center text-white">
+            <Flame className="w-14 h-14 mx-auto mb-4 opacity-90" />
+            <p className="text-2xl font-bold">Fuel your coaching.</p>
+            <p className="text-white/80 mt-2">Plan meals, track macros, and manage clients in one place.</p>
+          </div>
         </div>
       </div>
     </div>

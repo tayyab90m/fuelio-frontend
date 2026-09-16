@@ -23,18 +23,18 @@ const Sidebar: React.FC = () => {
 
   const linkStyle = ({ isActive }: { isActive: boolean }) =>
     isActive
-      ? ' ml-5 pt-2 mb-4 border-b-2 border-b-[#E1172C] text-[#E1172C] font-semibold'
-      : ' ml-5 pt-2 mb-4 transition-all border-b-transparent border-b-2 hover:text-[#E1172C] hover:border-b-[#E1172C] hover:border-b-2  text-stone-500 font-semibold';
+      ? ' ml-5 pt-2 mb-4 border-b-2 border-b-primary text-primary font-semibold'
+      : ' ml-5 pt-2 mb-4 transition-all border-b-transparent border-b-2 hover:text-primary hover:border-b-primary hover:border-b-2  text-stone-500 font-semibold';
   const nestedLinkStyle = ({ isActive }: { isActive: boolean }) =>
     isActive
-      ? 'ml-4 items-baseline border-b-2 border-b-[#E1172C] text-[#E1172C] font-semibold'
-      : 'ml-4 items-baseline transition-all border-b-transparent border-b-2 hover:text-[#E1172C] hover:border-b-[#E1172C] hover:border-b-2  text-stone-500 font-semibold';
+      ? 'ml-4 items-baseline border-b-2 border-b-primary text-primary font-semibold'
+      : 'ml-4 items-baseline transition-all border-b-transparent border-b-2 hover:text-primary hover:border-b-primary hover:border-b-2  text-stone-500 font-semibold';
   return (
     <div className={`bg-white sticky top-0 self-start overflow-hidden h-screen transition-all ${openMenu ? " w-[60px]" : "w-[250px]"}`}>
       <div className=''>
         <div className="flex mt-4 items-center justify-end text-xl font-bold text-center">
           <Link to='/dashboard/coach-dashboard'>
-            <h3 className=' pl-4 flex items-center whitespace-nowrap'>Boss Bodies</h3>
+            <h3 className=' pl-4 flex items-center whitespace-nowrap'>Fuelio</h3>
           </Link>
           <button className='ml-auto px-[20px]'>
             {
@@ -52,7 +52,7 @@ const Sidebar: React.FC = () => {
           <ul className='px-3'>
             {sidebarItems.map((item, index) => (
               <li key={index}>
-                <div className="flex text-stone-500 rounded-[17px] p-[15px] items-center justify-between cursor-pointer hover:shadow-lg hover:shadow-gray-300 hover:bg-[#E1172C] hover:text-white"
+                <div className="flex text-stone-500 rounded-[17px] p-[15px] items-center justify-between cursor-pointer hover:shadow-lg hover:shadow-gray-300 hover:bg-primary hover:text-white"
                   onClick={() => setOpenDropdown(item.id)}>
                   <span className='flex gap-4'>
                     <Users />
