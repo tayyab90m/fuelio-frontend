@@ -81,6 +81,15 @@ export function RecipesConfig() {
     instructions: []
   };
 
+  interface SelectedSubstitute {
+    substituteIngredientId: string;
+    unitId: string;
+    minAmount?: number;
+    baseAmount?: number;
+    maxAmount?: number;
+    roundAmount?: number;
+  }
+
   interface SelectedIngredient {
     id: string | undefined;  // The ingredient ID
     ingredientId: string;    // The ingredient's ID from the list
@@ -88,6 +97,8 @@ export function RecipesConfig() {
     minAmount?: number;      // Optional field for min amount
     baseAmount?: number;     // Optional field for base amount
     maxAmount?: number;      // Optional field for max amount
+    roundAmount?: number;    // Optional field for round-to amount
+    substitutes?: SelectedSubstitute[]; // Ingredients that can substitute for this one, each with its own amounts
   }
 
   const [selectedIngredients, setSelectedIngredients] = useState<SelectedIngredient[]>([]);
@@ -131,15 +142,26 @@ export function RecipesConfig() {
           carbs: Number(totalNutrients.carbs.toFixed(1)) || 0,
           fat: Number(totalNutrients.fat.toFixed(1)) || 0,
           instructions: instructionSteps.map(step => step.text).filter(text => text.trim() !== ''),
+          // Each amount field is taken from its own input - previously these
+          // were all overwritten with baseAmount on submit, silently
+          // discarding whatever the user typed into Min/Max/Round Amount.
           recipeIngredientsAttributes: selectedIngredients?.map(ing => ({
-            ...ing,
-            id: Number(ing.id),
-            baseAmount: Number(ing.baseAmount),
-            maxAmount: Number(ing.baseAmount),
-            minAmount: Number(ing.baseAmount),
-            roundAmount: Number(ing.baseAmount)
-
-
+            ingredientId: ing.ingredientId,
+            unitId: ing.unitId,
+            baseAmount: Number(ing.baseAmount) || 0,
+            minAmount: Number(ing.minAmount) || 0,
+            maxAmount: Number(ing.maxAmount) || 0,
+            roundAmount: Number(ing.roundAmount) || 0,
+            substitutes: (ing.substitutes || [])
+              .filter(sub => sub.substituteIngredientId && sub.unitId)
+              .map(sub => ({
+                substituteIngredientId: sub.substituteIngredientId,
+                unitId: sub.unitId,
+                baseAmount: Number(sub.baseAmount) || 0,
+                minAmount: Number(sub.minAmount) || 0,
+                maxAmount: Number(sub.maxAmount) || 0,
+                roundAmount: Number(sub.roundAmount) || 0,
+              })),
           }))
         };
         if (editingRecipe) {
@@ -192,9 +214,17 @@ export function RecipesConfig() {
             ingredientId: ri.ingredient.id,
             unitId: ri.unit.id,
             baseAmount: ri.baseAmount,
-            maxAmount: ri.baseAmount,
-            minAmount: ri.baseAmount,
-            roundAmount: ri.baseAmount
+            minAmount: ri.minAmount,
+            maxAmount: ri.maxAmount,
+            roundAmount: ri.roundAmount,
+            substitutes: (ri.ingredientSubstitutes || []).map(sub => ({
+              substituteIngredientId: sub.substituteIngredient.id,
+              unitId: sub.unit.id,
+              baseAmount: sub.baseAmount,
+              minAmount: sub.minAmount,
+              maxAmount: sub.maxAmount,
+              roundAmount: sub.roundAmount,
+            })),
           }))
         );
       } else {
@@ -220,7 +250,7 @@ export function RecipesConfig() {
     setSelectedIngredients((prevState) => {
       return [
         ...prevState,
-        { id: undefined, ingredientId: '', unitId: '' }
+        { id: undefined, ingredientId: '', unitId: '', substitutes: [] }
       ]
     });
   };
@@ -234,6 +264,41 @@ export function RecipesConfig() {
 
   const handleRemoveIngredient = (index) => {
     setSelectedIngredients((prevState) => prevState.filter((_, idx) => idx !== index));
+  };
+
+  const handleAddSubstitute = (ingredientIndex: number) => {
+    setSelectedIngredients((prevState) => {
+      const updated = [...prevState];
+      updated[ingredientIndex] = {
+        ...updated[ingredientIndex],
+        substitutes: [
+          ...(updated[ingredientIndex].substitutes || []),
+          { substituteIngredientId: '', unitId: '' }
+        ]
+      };
+      return updated;
+    });
+  };
+
+  const handleSubstituteChange = (ingredientIndex: number, subIndex: number, field: string, value: any) => {
+    setSelectedIngredients((prevState) => {
+      const updated = [...prevState];
+      const substitutes = [...(updated[ingredientIndex].substitutes || [])];
+      substitutes[subIndex] = { ...substitutes[subIndex], [field]: value };
+      updated[ingredientIndex] = { ...updated[ingredientIndex], substitutes };
+      return updated;
+    });
+  };
+
+  const handleRemoveSubstitute = (ingredientIndex: number, subIndex: number) => {
+    setSelectedIngredients((prevState) => {
+      const updated = [...prevState];
+      updated[ingredientIndex] = {
+        ...updated[ingredientIndex],
+        substitutes: (updated[ingredientIndex].substitutes || []).filter((_, idx) => idx !== subIndex)
+      };
+      return updated;
+    });
   };
 
 
@@ -563,108 +628,111 @@ export function RecipesConfig() {
               )}
 
               {selectedIngredients.map((item, index) => (
-                <div key={item.id} className="grid grid-cols-7 gap-2 items-end border-b">
-                  {/* Ingredient Select */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Ingredient</label>
-                    <Select
-                      value={item.ingredientId}
-                      onValueChange={(value) => handleIngredientChange(index, 'ingredientId', value)}>
+                <div key={index} className="space-y-3 pb-4 border-b">
+                  <div className="grid grid-cols-2 md:grid-cols-6 gap-2 items-end">
+                    {/* Ingredient Select */}
+                    <div className="space-y-2 col-span-2">
+                      <label className="text-sm font-medium text-gray-700">Ingredient</label>
+                      <Select
+                        value={item.ingredientId}
+                        onValueChange={(value) => handleIngredientChange(index, 'ingredientId', value)}>
 
-                      <SelectTrigger className="h-10 border border-gray-200">
-                        <SelectValue placeholder="Select ingredient" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white">
-                        {ingredients?.map((ing) => (
-                          <SelectItem key={ing.id} value={ing.id}>
-                            {ing.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                        <SelectTrigger className="h-10 border border-gray-200">
+                          <SelectValue placeholder="Select ingredient" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white">
+                          {ingredients?.map((ing) => (
+                            <SelectItem key={ing.id} value={ing.id}>
+                              {ing.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Min Amount */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Min Amount</label>
+                      <Input
+                        type="number"
+                        value={item.minAmount}
+                        min="0"
+                        onChange={(e) => handleIngredientChange(index, 'minAmount', Number(e.target.value))}
+                        className="h-10 border border-gray-200"
+                      />
+                    </div>
+
+                    {/* Base Amount */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Base Amount</label>
+                      <Input
+                        type="number"
+                        value={item.baseAmount}
+                        min="0"
+                        onChange={(e) => handleIngredientChange(index, 'baseAmount', Number(e.target.value))}
+                        className="h-10 border border-gray-200"
+                      />
+                    </div>
+
+                    {/* Max Amount */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Max Amount</label>
+                      <Input
+                        type="number"
+                        value={item.maxAmount}
+                        min="0"
+                        onChange={(e) => handleIngredientChange(index, 'maxAmount', Number(e.target.value))}
+                        className="h-10 border border-gray-200"
+                      />
+                    </div>
+
+                    {/* Round Amount */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Round To</label>
+                      <Input
+                        type="number"
+                        value={item.roundAmount}
+                        min="0"
+                        placeholder="e.g. 5"
+                        onChange={(e) => handleIngredientChange(index, 'roundAmount', Number(e.target.value))}
+                        className="h-10 border border-gray-200"
+                      />
+                    </div>
+
+                    {/* Unit Select */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Units</label>
+                      <Select
+                        value={item.unitId}
+                        onValueChange={(value) => handleIngredientChange(index, 'unitId', value)}>
+                        <SelectTrigger className="h-10 border border-gray-200">
+                          <SelectValue placeholder="Unit" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white">
+                          {mealUnits?.map((unit) => (
+                            <SelectItem key={unit.id} value={unit.id}>
+                              {unit.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Remove Ingredient Button */}
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => handleRemoveIngredient(index)}
+                      className="h-10 bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
+                    >
+                      <Trash className="h-4 w-4 mr-2" />
+                      Remove
+                    </Button>
                   </div>
-
-                  {/* Amount Input */}
-                  {/* <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Serving</label>
-        <Input
-          type="number"
-          placeholder="Amount"
-          value={item.baseAmount}
-          min="0"
-          onChange={(e) => handleIngredientChange(index, 'amount', Number(e.target.value))}
-          className="h-10 border border-gray-200"
-        />
-      </div> */}
-                  {/* Min Amount */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Min Amount</label>
-                    <Input
-                      type="number"
-                      value={item.minAmount}
-                      min="0"
-                      onChange={(e) => handleIngredientChange(index, 'minAmount', Number(e.target.value))}
-                      className="h-10 border border-gray-200"
-                    />
-                  </div>
-
-                  {/* Base Amount */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Base Amount</label>
-                    <Input
-                      type="number"
-                      value={item.baseAmount}
-                      min="0"
-                      onChange={(e) => handleIngredientChange(index, 'baseAmount', Number(e.target.value))}
-                      className="h-10 border border-gray-200"
-                    />
-                  </div>
-
-                  {/* Max Amount */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Max Amount</label>
-                    <Input
-                      type="number"
-                      value={item.maxAmount}
-                      min="0"
-                      onChange={(e) => handleIngredientChange(index, 'maxAmount', Number(e.target.value))}
-                      className="h-10 border border-gray-200"
-                    />
-                  </div>
-
-                  {/* Unit Select */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Units</label>
-                    <Select
-                      value={item.unitId}
-                      onValueChange={(value) => handleIngredientChange(index, 'unitId', value)}>
-                      <SelectTrigger className="h-10 border border-gray-200">
-                        <SelectValue placeholder="Unit" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white">
-                        {mealUnits?.map((unit) => (
-                          <SelectItem key={unit.id} value={unit.id}>
-                            {unit.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Remove Ingredient Button */}
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={() => handleRemoveIngredient(index)}
-                    className="h-10 bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
-                  >
-                    <Trash className="h-4 w-4 mr-2" />
-                    Remove
-                  </Button>
 
                   {/* Nutrient Data */}
-                  <table className="col-span-7 w-full">
-                    {item.ingredientId && (
+                  {item.ingredientId && (
+                    <table className="w-full">
                       <tbody>
                         <tr className="bg-red-100">
                           {(() => {
@@ -690,8 +758,106 @@ export function RecipesConfig() {
                           })()}
                         </tr>
                       </tbody>
-                    )}
-                  </table>
+                    </table>
+                  )}
+
+                  {/* Substitutes - each carries its own amounts/unit, independent
+                      of the parent ingredient's amounts (e.g. turkey breast
+                      substituting for chicken breast isn't a 1:1 gram swap). */}
+                  <div className="pl-4 border-l-2 border-gray-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-gray-500 uppercase">Substitutes (optional)</span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleAddSubstitute(index)}
+                        className="h-8 text-xs"
+                      >
+                        <Plus className="w-3 h-3 mr-1" />
+                        Add Substitute
+                      </Button>
+                    </div>
+                    {(item.substitutes || []).map((sub, subIndex) => (
+                      <div key={subIndex} className="grid grid-cols-2 md:grid-cols-6 gap-2 items-end">
+                        <div className="space-y-1 col-span-2">
+                          <label className="text-xs text-gray-500">Substitute Ingredient</label>
+                          <Select
+                            value={sub.substituteIngredientId}
+                            onValueChange={(value) => handleSubstituteChange(index, subIndex, 'substituteIngredientId', value)}>
+                            <SelectTrigger className="h-9 border border-gray-200">
+                              <SelectValue placeholder="Select ingredient" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white">
+                              {ingredients?.filter((ing) => ing.id !== item.ingredientId).map((ing) => (
+                                <SelectItem key={ing.id} value={ing.id}>
+                                  {ing.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-gray-500">Min</label>
+                          <Input
+                            type="number"
+                            value={sub.minAmount}
+                            min="0"
+                            onChange={(e) => handleSubstituteChange(index, subIndex, 'minAmount', Number(e.target.value))}
+                            className="h-9 border border-gray-200"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-gray-500">Base</label>
+                          <Input
+                            type="number"
+                            value={sub.baseAmount}
+                            min="0"
+                            onChange={(e) => handleSubstituteChange(index, subIndex, 'baseAmount', Number(e.target.value))}
+                            className="h-9 border border-gray-200"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-gray-500">Max</label>
+                          <Input
+                            type="number"
+                            value={sub.maxAmount}
+                            min="0"
+                            onChange={(e) => handleSubstituteChange(index, subIndex, 'maxAmount', Number(e.target.value))}
+                            className="h-9 border border-gray-200"
+                          />
+                        </div>
+                        <div className="flex gap-2 items-end">
+                          <div className="space-y-1 flex-1">
+                            <label className="text-xs text-gray-500">Unit</label>
+                            <Select
+                              value={sub.unitId}
+                              onValueChange={(value) => handleSubstituteChange(index, subIndex, 'unitId', value)}>
+                              <SelectTrigger className="h-9 border border-gray-200">
+                                <SelectValue placeholder="Unit" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-white">
+                                {mealUnits?.map((unit) => (
+                                  <SelectItem key={unit.id} value={unit.id}>
+                                    {unit.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleRemoveSubstitute(index, subIndex)}
+                            className="h-9 bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
 

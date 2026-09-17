@@ -17,16 +17,14 @@ const toRecipeIngredient = (ri: RestRecipeIngredient): Recipe['recipeIngredients
   baseAmount: ri.baseAmount,
   maxAmount: ri.maxAmount,
   roundAmount: ri.roundAmount,
-  // The backend's IngredientSubstitute rows carry no amounts/unit of their
-  // own - approximate with the parent recipeIngredient's values.
   ingredientSubstitutes: (ri.substitutes || []).map((sub) => ({
     id: sub.id,
     substituteIngredient: sub.substituteIngredient,
-    unit: ri.unit,
-    minAmount: ri.minAmount,
-    baseAmount: ri.baseAmount,
-    maxAmount: ri.maxAmount,
-    roundAmount: ri.roundAmount,
+    unit: sub.unit,
+    minAmount: sub.minAmount,
+    baseAmount: sub.baseAmount,
+    maxAmount: sub.maxAmount,
+    roundAmount: sub.roundAmount,
   })),
 });
 
@@ -69,7 +67,14 @@ const toRestBody = (input: CreateRecipeInput) => ({
       baseAmount: attr.baseAmount,
       maxAmount: attr.maxAmount,
       roundAmount: attr.roundAmount,
-      substituteIngredientIds: attr.substituteIngredientIds,
+      substitutes: attr.substitutes?.map((sub) => ({
+        substituteIngredientId: sub.substituteIngredientId,
+        unitId: sub.unitId,
+        minAmount: sub.minAmount,
+        baseAmount: sub.baseAmount,
+        maxAmount: sub.maxAmount,
+        roundAmount: sub.roundAmount,
+      })),
     })),
 });
 
