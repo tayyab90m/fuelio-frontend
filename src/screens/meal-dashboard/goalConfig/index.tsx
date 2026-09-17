@@ -20,6 +20,7 @@ export function GoalsConfig() {
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Goal name is required"),
+    description: Yup.string().required("Description is required"),
     calorieAdjustment: Yup.object().shape({
       type: Yup.string().required("Adjustment type is required"),
       percentage: Yup.number()
@@ -218,6 +219,19 @@ export function GoalsConfig() {
           placeholder="e.g., Fat Loss"
         />
         {errors.name && touched.name && <div className="text-sm text-red-500 mt-1">{errors.name}</div>}
+      </div>
+
+      {/* Goal Description */}
+      <div className="space-y-2">
+        <label htmlFor="description" className="text-sm font-medium text-gray-700">Description</label>
+        <Field
+          as="textarea"
+          name="description"
+          rows={3}
+          className="px-2 py-2 w-full rounded-md border border-gray-200 focus:border-blue-300 focus:ring-blue-200"
+          placeholder="e.g., A moderate calorie deficit for steady fat loss while preserving muscle"
+        />
+        {errors.description && touched.description && <div className="text-sm text-red-500 mt-1">{errors.description}</div>}
       </div>
 
       {/* Calorie Adjustment Type */}

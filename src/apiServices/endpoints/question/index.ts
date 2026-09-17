@@ -140,14 +140,28 @@ export const submitAnswerApi = async (variables: SubmitQuestionsRequest): Promis
   const activityLevelId = answers.find((a) => a.activityLevelId)?.activityLevelId;
   const goalId = answers.find((a) => a.goalId)?.goalId;
 
-  const body: RestSubmitAnswerBody = {
-    age: matchNumeric(['age']) ?? 0,
-    sex: matchSex() ?? 'male',
-    heightCm: matchNumeric(['height']) ?? 0,
-    weightKg: matchNumeric(['weight']) ?? 0,
-    activityLevelId,
-    goalId,
-  };
+  const age = matchNumeric(['age']);
+  const sex = matchSex();
+  const heightCm = matchNumeric(['height']);
+  const weightKg = matchNumeric(['weight']);
+
+  // Defaulting any of these to 0/'male' when unresolved would silently send
+  // physiologically nonsensical values to the calculation endpoint and come
+  // back with a garbage-but-plausible-looking diet plan. Fail loudly instead
+  // so the caller (onSubmitQuestionair) can surface a clear error.
+  const missing = [
+    age === undefined && 'age',
+    sex === undefined && 'sex',
+    heightCm === undefined && 'height',
+    weightKg === undefined && 'weight',
+    !activityLevelId && 'activity level',
+    !goalId && 'goal',
+  ].filter(Boolean);
+  if (missing.length > 0) {
+    throw new Error(`Please answer all required questions before submitting (missing: ${missing.join(', ')}).`);
+  }
+
+  const body: RestSubmitAnswerBody = { age, sex, heightCm, weightKg, activityLevelId, goalId };
 
   const result = await apiPost<RestSubmitAnswerResponse>({ path: "/questions/submit-answer", body });
 
