@@ -46,6 +46,8 @@ export const onSubmitQuestionair = async (navigate: NavigateFunction) => {
       navigate('/dashboard/diet-plan')
       store.dispatch(resetAnswers());
     }
+  } catch (err: any) {
+    handleError(err?.message || 'Failed to generate the diet plan.');
   } finally {
     store.dispatch(setIsLoading(false));
   }
