@@ -1,6 +1,6 @@
 import { DietPlanStateProps } from "../../../redux/diet-plan/types";
 import { Question, QuestionairsDataProps } from "../../../interfaces/meal/types";
-import { apiDelete, apiGet, apiPost, apiPut } from "../../methods";
+import { apiDelete, apiGetAll, apiPost, apiPut } from "../../methods";
 import { store } from "../../../redux/store";
 import {
   AllQuestionsResponse,
@@ -47,7 +47,7 @@ const toQuestionairsItem = (record: RestQuestion): QuestionairsDataProps & Quest
 
 // Fetch all questions
 export const allQuestionsApi = async (): Promise<AllQuestionsResponse> => {
-  const { data } = await apiGet<{ data: RestQuestion[] }>({ path: "/questions" });
+  const { data } = await apiGetAll<RestQuestion>({ path: "/questions" });
   return { data: { allQuestions: data.map(toQuestionairsItem) } };
 };
 

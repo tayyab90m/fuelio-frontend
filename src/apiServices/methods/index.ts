@@ -15,6 +15,27 @@ export const apiGet = async <T>({ path, params, config }: RequestParams): Promis
     );
 };
 
+// The backend paginates every list endpoint (default 20, max 100 per page).
+// Screens here expect complete lists (tables, dropdowns), so walk every page.
+const MAX_PAGE_SIZE = 100;
+
+export const apiGetAll = async <T>({ path, params, config }: RequestParams): Promise<{ data: T[] }> => {
+    const all: T[] = [];
+    let page = 1;
+    let totalPages = 1;
+    do {
+        const res = await apiGet<{ data: T[]; meta?: { totalPages: number } }>({
+            path,
+            params: { ...params, page, limit: MAX_PAGE_SIZE },
+            config,
+        });
+        all.push(...res.data);
+        totalPages = res.meta?.totalPages ?? 1;
+        page += 1;
+    } while (page <= totalPages);
+    return { data: all };
+};
+
 export const apiPost = async <T>({ path, body, config }: BodyRequestParams): Promise<T> => {
     return requestHandler(() =>
         instance.post<T>(buildUrl(path), body, { ...config })
