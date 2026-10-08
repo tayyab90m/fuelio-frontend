@@ -361,11 +361,14 @@ export function RecipesConfig() {
     return data.reduce(
       (totals, item) => {
         const nutrientData = getIngredientNutrients(item.ingredientId);
-        if (nutrientData) {
-          totals.calories += nutrientData.calories * (item.baseAmount); // Assuming baseAmount is in grams
-          totals.protein += nutrientData.protein * (item.baseAmount);
-          totals.fat += nutrientData.fat * (item.baseAmount);
-          totals.carbs += nutrientData.carbs * (item.baseAmount);
+        if (nutrientData && nutrientData.servingSizeAmount > 0) {
+          // Ingredient nutrients are per servingSizeAmount (e.g. per 100 g);
+          // assumes baseAmount is in the same unit as the serving size.
+          const servings = (Number(item.baseAmount) || 0) / nutrientData.servingSizeAmount;
+          totals.calories += nutrientData.calories * servings;
+          totals.protein += nutrientData.protein * servings;
+          totals.fat += nutrientData.fat * servings;
+          totals.carbs += nutrientData.carbs * servings;
         }
         return totals;
       },
