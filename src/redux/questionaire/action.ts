@@ -41,8 +41,8 @@ export const onSubmitQuestionair = async (navigate: NavigateFunction) => {
       answers
     }
     const response = await submitAnswerApi({ input });
-    if (response.data.submitAnswer) {
-      store.dispatch(setData(response.data.submitAnswer));
+    if (response.data) {
+      store.dispatch(setData(response.data));
       navigate('/dashboard/diet-plan')
       store.dispatch(resetAnswers());
     }
