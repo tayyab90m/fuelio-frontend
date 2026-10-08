@@ -4,7 +4,6 @@ import { Field, useFormikContext, FormikProps } from 'formik';
 import { useNavigate, useParams } from 'react-router';
 import { CreateGeneralMealTypeBodyParams } from '../../../../../apiServices/endpoints/meal/types';
 import { RootState } from '../../../../../redux/store';
-import { MealTypesProps } from '../../../../../interfaces/meal/types';
 import moment from 'moment';
 
 const InputFields: FC<FormikProps<CreateGeneralMealTypeBodyParams>> = ({ errors, touched, handleSubmit }) => {

@@ -3,30 +3,25 @@ import { Input } from "../../../components/ui/input";
 
 import { Button } from "../../../components/ui/button";
 import { Badge } from "../../../components/ui/badge";
-import { Checkbox } from "../../../components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../../../components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover";
 import { Plus, Search, X, Layers2, ChevronsUpDown, Soup, LeafyGreen, Pencil, Trash } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../../components/ui/dialog";
 import { Formik, Field, Form } from "formik";
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import { onGetAllMeals, onCreateMeal, onUpdateMeal, onDeleteMeal, onFilterMeals } from '../../../redux/mealFilter/action';
 import { Meal } from '../../../apiServices/endpoints/mealsFilter/types';
 import { fetchCategories } from '../../../redux/categories/action';
 import { onMountAllMealTypes } from '../../../redux/meals/action';
-import { UpdateMealInput, UpdateMealInputData } from '../../../apiServices/endpoints/mealsFilter/types';
+import { UpdateMealInputData } from '../../../apiServices/endpoints/mealsFilter/types';
 import { onGetAllRecipes } from '../../../redux/recipes/action';
 import { mealValidationSchema } from '../../../utils/validation/meals/validation';
 import { onGetIngredients } from '../../../redux/ingredients/action';
 import { toast } from 'react-toastify';
-import MealForm from '../meal-component/MealForm';
 
 function MealFilter() {
-  const dispatch = useDispatch();
-  const { meals, loading } = useSelector((state: RootState) => state.mealFilter);
+  const { meals } = useSelector((state: RootState) => state.mealFilter);
   const { categories } = useSelector((state: RootState) => state.categories);
   const { allGeneralTypes } = useSelector((state: RootState) => state.mealsReducer);
   const { recipes } = useSelector((state: RootState) => state.recipes);
@@ -109,11 +104,6 @@ function MealFilter() {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingMeal(null);
-  };
-
-  const handleEditMeal = (meal) => {
-    setEditingMeal(meal);
-    setShowModal(true);
   };
 
   const handleSearch = () => {

@@ -1,10 +1,7 @@
 import { FC } from 'react';
 import { Formik, Field, Form } from 'formik';
-import * as Yup from 'yup';
 import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router';
 import { EditMealTypeProps } from '../../interfaces/meal/editType';
-import { updateGeneralMealsApi } from '../../apiServices/endpoints/meal';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { onMountAllMealTypes, onUpdateMealType } from '../../redux/meals/action';

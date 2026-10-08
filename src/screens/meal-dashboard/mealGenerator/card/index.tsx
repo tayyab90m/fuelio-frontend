@@ -10,7 +10,7 @@ const PlanGeneratorCard: FC<QuestionairsDataProps> = ({ questions, category, sel
             {questions?.map((item) => (
                 <SelectionSection
                     key={item.id}
-                    defaultValues={selectedItems?.find((selectedItem) => selectedItem.questionId == item.id)}
+                    defaultValues={selectedItems?.find((selectedItem) => selectedItem.questionId === item.id)}
                     activityLevels={activitiesData}
                     goals={goals}
                     {...item}

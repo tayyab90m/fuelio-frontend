@@ -1,7 +1,13 @@
 import React, { useState } from "react";
-import { Card, CardContent } from "../../../../components/ui/card";
 import {
-  Utensils, Dumbbell, AlarmClock, Drumstick, Calendar, MinusCircle, PlusCircle, Clock, ShoppingCart, List,
+  Utensils,
+  Dumbbell,
+  Drumstick,
+  Calendar,
+  MinusCircle,
+  PlusCircle,
+  Clock,
+  ShoppingCart,
   BicepsFlexed,
   EggFried,
   Ham,
@@ -9,7 +15,6 @@ import {
   Citrus,
   Fish
 } from "lucide-react";
-import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../redux/store";
 import MacrosCard from "../macroCard";

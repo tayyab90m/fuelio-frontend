@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ActivityLevelState } from "./types";
-import { ActivityLevel, ActivityLevelResponse } from "../../apiServices/endpoints/activity/type";
+import { ActivityLevel } from "../../apiServices/endpoints/activity/type";
 
 const initialState: ActivityLevelState = {
   activityLevels: [],

@@ -19,7 +19,7 @@ const QuestionsList: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const data = questions[currentStep];
   const totalSteps = questions.length;
-  const showSubmit = currentStep == (totalSteps - 1);
+  const showSubmit = currentStep === (totalSteps - 1);
 
   useEffect(() => {
     onMount();

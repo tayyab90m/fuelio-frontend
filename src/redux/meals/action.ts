@@ -36,7 +36,7 @@ export const onDeleteMealType = async (props: GetGeneralMealTypeBodyParams) => {
 export const onUpdateMealType = async (props: UpdateGeneralMealTypeBodyParams, { setSubmitting }: FormikHelpers<UpdateGeneralMealTypeBodyParams>) => {
     try {
         setSubmitting(true);
-        const response = await updateGeneralMealsApi(props);
+        await updateGeneralMealsApi(props);
     } finally {
         setSubmitting(false);
     }

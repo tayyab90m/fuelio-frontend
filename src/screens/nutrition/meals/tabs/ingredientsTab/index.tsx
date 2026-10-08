@@ -1,5 +1,4 @@
 import React,{FC} from 'react'
-import { ingredients } from '../../../../../utils/constants/mealData';
 
 const RenderIngredientsTab:FC  = () => {
   return (

@@ -4,7 +4,6 @@ import { onDeleteMealType, onUpdateMealTypeState } from '../../../redux/meals/ac
 import { useDispatch } from 'react-redux';
 import { setSelectedMealType } from '../../../redux/meals/reducer';
 import { TableRow, TableCell } from '../../../components/ui/table';
-import moment from 'moment';
 import { Badge } from '../../../components/ui/badge';
 import { useNavigate } from 'react-router';
 import { Button } from '../../../components/ui/button';

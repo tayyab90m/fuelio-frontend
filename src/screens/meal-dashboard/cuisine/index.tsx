@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { 
   onGetAllCuisines, 
   onCreateCuisine, 
@@ -26,15 +26,10 @@ import {
   DialogTitle, 
   DialogFooter 
 } from '../../../components/ui/dialog';
-import { Badge } from '../../../components/ui/badge';
 import { Card } from '../../../components/ui/card';
-import { 
-  Plus, 
-  Search, 
-  Filter,
-  Clock,
-  Utensils,
-  Users,
+import {
+  Plus,
+  Search,
   Edit,
   Trash
 } from 'lucide-react';
@@ -42,11 +37,10 @@ import { Formik, Form, Field } from 'formik';
 import { Switch } from "../../../components/ui/switch";
 
 export function CuisineConfig() {
-  const dispatch = useDispatch();
   const cuisines = useSelector((state: RootState) => state.cuisine.cuisines);
   const [showForm, setShowForm] = useState(false);
   const [editingCuisine, setEditingCuisine] = useState<Cuisine | null>(null);
-  const [cuisineName, setCuisineName] = useState('');
+  const [, setCuisineName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {

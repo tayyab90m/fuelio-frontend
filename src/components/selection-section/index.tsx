@@ -27,10 +27,10 @@ const SelectionSection: FC<SelectionSectionProps> = ({ id, options, text, questi
 
     const onHandlePress = (item: string) => {
         setSelectedItems((prevState) => {
-            if ((questionType == 'goal' && prevState?.goalId) || (questionType == 'activity_level' && prevState?.activityLevelId)) {
+            if ((questionType === 'goal' && prevState?.goalId) || (questionType === 'activity_level' && prevState?.activityLevelId)) {
                 return undefined;
             }
-            if (prevState?.answer?.some((prevItem) => prevItem == item)) {
+            if (prevState?.answer?.some((prevItem) => prevItem === item)) {
                 return {
                     ...prevState,
                     answer: prevState.answer.filter((prevItem) => prevItem !== item),
@@ -38,7 +38,7 @@ const SelectionSection: FC<SelectionSectionProps> = ({ id, options, text, questi
                     goalId: ''
                 };
             }
-            if (questionType == 'goal') {
+            if (questionType === 'goal') {
                 return {
                     ...prevState,
                     questionId: id,
@@ -46,7 +46,7 @@ const SelectionSection: FC<SelectionSectionProps> = ({ id, options, text, questi
                     answer: []
                 };
             }
-            if (questionType == 'activity_level') {
+            if (questionType === 'activity_level') {
                 return {
                     ...prevState,
                     questionId: id,
@@ -54,7 +54,7 @@ const SelectionSection: FC<SelectionSectionProps> = ({ id, options, text, questi
                     answer: []
                 };
             }
-            if (questionType == 'multiple_choice') {
+            if (questionType === 'multiple_choice') {
                 if (prevState?.answer) {
                     return {
                         ...prevState,
@@ -99,7 +99,7 @@ const SelectionSection: FC<SelectionSectionProps> = ({ id, options, text, questi
                 activityLevels.map((item) => (
                     <RadioButton
                         key={item.id}
-                        isSelected={selectedItems?.activityLevelId == item.id}
+                        isSelected={selectedItems?.activityLevelId === item.id}
                         title={item.name}
                         onPress={() => onHandlePress(item.id)}
                     />
@@ -108,7 +108,7 @@ const SelectionSection: FC<SelectionSectionProps> = ({ id, options, text, questi
                 goals.map((item) => (
                     <RadioButton
                         key={item.id}
-                        isSelected={selectedItems?.goalId == item.id}
+                        isSelected={selectedItems?.goalId === item.id}
                         title={item.name}
                         onPress={() => onHandlePress(item.id)}
                     />
@@ -164,7 +164,7 @@ const SelectionSection: FC<SelectionSectionProps> = ({ id, options, text, questi
                 options.map((item) => (
                     <RadioButton
                         key={item}
-                        isSelected={selectedItems?.answer?.some((selectedItem) => selectedItem == item)}
+                        isSelected={selectedItems?.answer?.some((selectedItem) => selectedItem === item)}
                         title={item}
                         onPress={() => onHandlePress(item)}
                     />

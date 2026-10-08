@@ -1,4 +1,4 @@
-import React, { useState, useEffect, FormEvent, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -23,11 +23,8 @@ import {
   Search,
   Filter,
   Clock,
-  Utensils,
-  Users,
   Pencil,
   Trash,
-  ChevronsUpDown,
   X
 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';

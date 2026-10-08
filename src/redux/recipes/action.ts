@@ -1,11 +1,10 @@
 import { store } from "../store";
 import { setIsLoading } from "../meals/reducer";
-import { 
-  setAllRecipes, 
-  addRecipe, 
-  updateRecipe, 
-  deleteRecipe, 
-  setRecipeError 
+import {
+  setAllRecipes,
+  addRecipe,
+  deleteRecipe,
+  setRecipeError
 } from "./reducer";
 import { 
   allRecipesApi, 
@@ -13,7 +12,7 @@ import {
   updateRecipeApi, 
   deleteRecipeApi 
 } from "../../apiServices/endpoints/recipes";
-import { CreateRecipeVariables, Recipe, CreateRecipeInput, UpdateRecipeInput } from "../../apiServices/endpoints/recipes/types";
+import { CreateRecipeInput, UpdateRecipeInput } from "../../apiServices/endpoints/recipes/types";
 import { toast } from "react-toastify";
 
 const handleError = (message: string) => {
