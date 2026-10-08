@@ -1,26 +1,28 @@
 import { FC, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Field, useFormikContext, FormikProps } from 'formik';
-import { useNavigate, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { CreateGeneralMealTypeBodyParams } from '../../../../../apiServices/endpoints/meal/types';
 import { RootState } from '../../../../../redux/store';
 import moment from 'moment';
+
+// The Name dropdown's option values are lowercase keys ("morning_snack"), but
+// meal types can be stored as display names ("Morning Snack") - e.g. seeded
+// data - which would leave the dropdown blank when editing. Match on the key.
+export const toMealTypeKey = (name?: string): string =>
+  (name || '').trim().toLowerCase().replace(/\s+/g, '_');
 
 const InputFields: FC<FormikProps<CreateGeneralMealTypeBodyParams>> = ({ errors, touched, handleSubmit }) => {
   const { id } = useParams<{ id: string }>();
   const { setValues, values } = useFormikContext<CreateGeneralMealTypeBodyParams>();
   const { selectedMealType } = useSelector((state: RootState) => state.mealsReducer);
-  const navigate = useNavigate();
 
-  const handleSaveAndPublish = async (e: React.MouseEvent) => {
+  // Formik's handleSubmit doesn't wait for or report the outcome, so don't
+  // navigate here: the form's onSubmit (new-type/index.tsx) navigates to the
+  // list itself, and only once the save actually succeeded.
+  const handleSaveAndPublish = (e: React.MouseEvent) => {
     e.preventDefault();
-    try {
-      await handleSubmit();
-      setTimeout(() => {
-        navigate('/dashboard/meal-types', { state: { refresh: true } });
-      }, 100);
-    } catch (error) {
-    }
+    handleSubmit();
   };
 
   useEffect(() => {
@@ -30,6 +32,7 @@ const InputFields: FC<FormikProps<CreateGeneralMealTypeBodyParams>> = ({ errors,
       setValues((prevValues: CreateGeneralMealTypeBodyParams) => ({
         ...prevValues,
         ...selectedMealType,
+        name: toMealTypeKey(selectedMealType.name),
         startTime: formattedStartTime,
         endTime: formattedEndTime,    
       }));
@@ -68,6 +71,23 @@ const InputFields: FC<FormikProps<CreateGeneralMealTypeBodyParams>> = ({ errors,
         </Field>
         {errors.state && touched.state && (
           <div className="text-red-500 text-sm">{errors.state}</div>
+        )}
+      </div>
+
+      {/* Description */}
+      <div className="col-span-2">
+        <label htmlFor="description" className="block">
+          Description
+        </label>
+        <Field
+          type="text"
+          name="description"
+          id="description"
+          placeholder="e.g., Light meal to start the day"
+          className="border w-full rounded p-2"
+        />
+        {errors.description && touched.description && (
+          <div className="text-red-500 text-sm">{errors.description}</div>
         )}
       </div>
 
