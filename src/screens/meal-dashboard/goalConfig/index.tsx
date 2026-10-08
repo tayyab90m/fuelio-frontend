@@ -25,18 +25,28 @@ export function GoalsConfig() {
       type: Yup.string().required("Adjustment type is required"),
       percentage: Yup.number()
         .min(0, "Adjustment percentage cannot be negative")
+        .max(100, "Adjustment percentage cannot exceed 100")
         .required("Adjustment percentage is required")
     }),
+    // All three are percentages of daily calories (the backend's diet-plan
+    // calculation splits calories by them), so they must total 100.
     macroRatios: Yup.object().shape({
       protein: Yup.number()
-        .min(0, "Protein (g/kg) cannot be negative")
-        .required("Protein is required"),
+        .min(0, "Protein percentage cannot be negative")
+        .max(100, "Protein percentage cannot exceed 100")
+        .required("Protein percentage is required"),
       fats: Yup.number()
         .min(0, "Fats percentage cannot be negative")
+        .max(100, "Fats percentage cannot exceed 100")
         .required("Fats percentage is required"),
       carbs: Yup.number()
         .min(0, "Carbs percentage cannot be negative")
+        .max(100, "Carbs percentage cannot exceed 100")
         .required("Carbs percentage is required")
+    }).test("sums-to-100", "Protein, fats and carbs must add up to 100%", (ratios) => {
+      const values = [ratios?.protein, ratios?.fats, ratios?.carbs];
+      if (values.some((v) => v === null || v === undefined || Number.isNaN(v))) return true;
+      return Math.abs(values.reduce((sum, v) => sum + Number(v), 0) - 100) < 0.01;
     }),
     state: Yup.string().required("Status is required")
   });
@@ -106,7 +116,7 @@ export function GoalsConfig() {
         <TableHead className="font-bold text-sm py-4 px-4">Name</TableHead>
         <TableHead className="font-bold text-sm text-center">Calorie Adjustment</TableHead>
         <TableHead className="font-bold text-sm text-center">Adjustment Percentage</TableHead>
-        <TableHead className="font-bold text-sm text-center">Protein (g/kg)</TableHead>
+        <TableHead className="font-bold text-sm text-center">Protein (%)</TableHead>
         <TableHead className="font-bold text-sm text-center">Fats (%)</TableHead>
         <TableHead className="font-bold text-sm text-center">Carbs (%)</TableHead>
         <TableHead className="font-bold text-sm text-center">Status</TableHead>
@@ -125,7 +135,7 @@ export function GoalsConfig() {
           </TableCell>
           <TableCell className="text-center">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-200">
-              {goal.macroRatios.protein}g/kg
+              {goal.macroRatios.protein}%
             </span>
           </TableCell>
           <TableCell className="text-center">
@@ -272,12 +282,12 @@ export function GoalsConfig() {
         </h3>
         <div className="grid grid-cols-3 gap-6">
           <div className="space-y-2">
-            <label htmlFor="macroRatios.protein" className="text-sm font-medium text-gray-700">Protein (g/kg)</label>
+            <label htmlFor="macroRatios.protein" className="text-sm font-medium text-gray-700">Protein (%)</label>
             <Field
               name="macroRatios.protein"
               type="number"
               className="h-10 px-2 w-full rounded-md border border-gray-200 focus:border-blue-300 focus:ring-blue-200"
-              placeholder="e.g., 2.2"
+              placeholder="e.g., 30"
             />
             {errors.macroRatios?.protein && touched.macroRatios?.protein && (
               <div className="text-sm text-red-500 mt-1">{errors.macroRatios.protein}</div>
@@ -310,6 +320,9 @@ export function GoalsConfig() {
             )}
           </div>
         </div>
+        {typeof errors.macroRatios === "string" && touched.macroRatios && (
+          <div className="text-sm text-red-500">{errors.macroRatios}</div>
+        )}
       </div>
 
       {/* Status */}
