@@ -193,7 +193,7 @@ export function GoalsConfig() {
 
       {/* Goal Edit Modal */}
       <Dialog open={showModal} onOpenChange={handleCloseModal}>
-        <DialogContent className="bg-white sm:max-w-[500px] p-6">
+        <DialogContent className="bg-white sm:max-w-[500px] p-6 max-h-[90vh] overflow-y-auto">
           <DialogHeader className="pb-4 border-b">
             <DialogTitle className="text-xl font-semibold text-gray-800">
               {editingGoal?.id ? 'Edit Goal' : 'Add Goal'}
