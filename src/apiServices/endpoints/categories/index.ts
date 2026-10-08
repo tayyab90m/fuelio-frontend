@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut } from "../../methods";
+import { apiDelete, apiGetAll, apiPost, apiPut } from "../../methods";
 import {
     CategoryWithDates,
     CreateCategoryInput,
@@ -71,6 +71,6 @@ export const deleteCategory = async (id: string): Promise<DeleteCategoryResponse
 };
 
 export const getAllCategories = async (): Promise<GetAllCategoriesResponse> => {
-    const { data } = await apiGet<{ data: RestCategory[] }>({ path: "/categories" });
+    const { data } = await apiGetAll<RestCategory>({ path: "/categories" });
     return { data: { allCategories: data.map(toCategory) } };
 };

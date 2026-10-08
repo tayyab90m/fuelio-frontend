@@ -1,5 +1,3 @@
-import { allGoalsApi, createGoalsApi, deleteGoalApi, toggleGoalStateApi, updateGoalApi } from "../../apiServices/endpoints/goals";
-import { setIsLoading } from "../meals/reducer";
 import { store } from "../store";
 import { toast } from "react-toastify";
 import { 
@@ -21,12 +19,7 @@ import {
   setDeleteMeal,
   filterMeals
 } from "./reducer";
-import { AppDispatch } from '../store';
 
-const handleError = (message: string) => {
-  toast.error(message);
-  store.dispatch(setLoading(false));
-};
 
 export const onGetAllMeals = async () => {
   try {

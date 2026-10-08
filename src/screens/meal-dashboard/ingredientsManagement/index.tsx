@@ -129,7 +129,7 @@ export function IngredientsConfig() {
 
   const loadIngredients = async () => {
     try {
-      const response = await onGetIngredients();
+      await onGetIngredients();
     } catch (error) {
       toast.error("Failed to load ingredients", toastOptions.error);
     }

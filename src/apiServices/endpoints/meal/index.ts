@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut } from "../../methods";
+import { apiDelete, apiGet, apiGetAll, apiPost, apiPut } from "../../methods";
 import {
     AllGeneralMealTypesResponseProps,
     AllMealCategoryResponseProps,
@@ -59,14 +59,14 @@ const toRestBody = (input: CreateGeneralMealTypeBodyParams | UpdateGeneralMealTy
 });
 
 export const allGeneralMealsApi = async (): Promise<AllGeneralMealTypesResponseProps> => {
-    const { data } = await apiGet<{ data: RestGeneralMealType[] }>({ path: "/general-meal-types" });
+    const { data } = await apiGetAll<RestGeneralMealType>({ path: "/general-meal-types" });
     return { data: { allGeneralTypes: data.map(toMealType) } };
 };
 
 // The old GraphQL `allUnits` query lived alongside meal types; kept here
 // (re-exported from ../units where possible) for signature compatibility.
 export const getAllUnitsApi = async (): Promise<AllMealUnitResponseProps> => {
-    const { data } = await apiGet<{ data: RestUnit[] }>({ path: "/units" });
+    const { data } = await apiGetAll<RestUnit>({ path: "/units" });
     return { data: { allUnits: data.map(toUnit) } };
 };
 
@@ -76,7 +76,7 @@ export const getAllUnitsApi = async (): Promise<AllMealUnitResponseProps> => {
 // at /general-meal-types for behavioral parity; this function has no
 // remaining callers in the app.
 export const allMealsCategoryApi = async (): Promise<AllMealCategoryResponseProps> => {
-    const { data } = await apiGet<{ data: RestGeneralMealType[] }>({ path: "/general-meal-types" });
+    const { data } = await apiGetAll<RestGeneralMealType>({ path: "/general-meal-types" });
     return {
         data: {
             allGeneralTypes: data.map((record) => ({

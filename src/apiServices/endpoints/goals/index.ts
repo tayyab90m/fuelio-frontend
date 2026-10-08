@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "../../methods";
+import { apiDelete, apiGetAll, apiPatch, apiPost, apiPut } from "../../methods";
 import {
   AllGoalsResponse,
   CreateGoalResponse,
@@ -52,7 +52,7 @@ const toRestBody = (goal: CreateGoalVariables | Goal) => ({
 });
 
 export const allGoalsApi = async (): Promise<AllGoalsResponse> => {
-  const { data } = await apiGet<{ data: RestGoal[] }>({ path: "/goals" });
+  const { data } = await apiGetAll<RestGoal>({ path: "/goals" });
   return { data: { allGoals: data.map(toGoal) } };
 };
 

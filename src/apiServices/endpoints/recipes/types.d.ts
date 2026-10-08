@@ -63,8 +63,16 @@ export interface AllRecipesResponse {
   };
 }
 
+interface SubstituteAttribute {
+  substituteIngredientId: string;
+  unitId: string;
+  minAmount: number;
+  baseAmount: number;
+  maxAmount: number;
+  roundAmount: number;
+}
+
 interface RecipeIngredientAttribute {
-  id?: number;
   _destroy?: boolean;
   ingredientId: string;
   unitId: string;
@@ -72,7 +80,7 @@ interface RecipeIngredientAttribute {
   baseAmount: number;
   maxAmount: number;
   roundAmount: number;
-  substituteIngredientIds?: string[];
+  substitutes?: SubstituteAttribute[];
 }
 
 export interface CreateRecipeInput {
@@ -101,10 +109,10 @@ export interface UpdateRecipeInput extends CreateRecipeInput {
 // fitness-dashboard-backend/src/modules/recipes/recipes.schema.ts. `GET /:id`
 // (and the create/update responses, which use the same `detailInclude`)
 // expand `recipeIngredients` -> `ingredient`/`unit`/`substitutes` ->
-// `substituteIngredient`. Note: unlike the old GraphQL shape, an
-// IngredientSubstitute row on the new backend carries no amounts/unit of its
-// own - those are approximated from the parent RecipeIngredient when mapped
-// to the frontend's `ingredientSubstitutes` shape.
+// `substituteIngredient`/`unit`. Each substitute now carries its own
+// minAmount/baseAmount/maxAmount/roundAmount/unit, independent of the
+// parent recipeIngredient's amounts (a substitute is rarely a 1:1 gram
+// swap - e.g. turkey breast vs. chicken breast at equivalent protein).
 export interface RestRecipeIngredient {
   id: string;
   minAmount: number;
@@ -116,6 +124,11 @@ export interface RestRecipeIngredient {
   substitutes: Array<{
     id: string;
     substituteIngredient: { id: string; name: string };
+    unit: { id: string; name: string };
+    minAmount: number;
+    baseAmount: number;
+    maxAmount: number;
+    roundAmount: number;
   }>;
 }
 

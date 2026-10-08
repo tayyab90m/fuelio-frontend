@@ -11,7 +11,7 @@ import { setIsLoading } from '../meals/reducer';
 import { store } from '../store';
 import { resetAnswers, setAllQuestions, } from './reducer';
 import { toast } from 'react-toastify';
-import { CreateQuestionVariables, UpdateQuestionVariables, SubmitAnswerInput } from './types';
+import { CreateQuestionVariables, UpdateQuestionVariables } from './types';
 import { setData } from '../diet-plan/reducer';
 import { NavigateFunction } from 'react-router';
 
@@ -46,6 +46,8 @@ export const onSubmitQuestionair = async (navigate: NavigateFunction) => {
       navigate('/dashboard/diet-plan')
       store.dispatch(resetAnswers());
     }
+  } catch (err: any) {
+    handleError(err?.message || 'Failed to generate the diet plan.');
   } finally {
     store.dispatch(setIsLoading(false));
   }

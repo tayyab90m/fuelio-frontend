@@ -28,12 +28,12 @@ const questionSlice = createSlice({
     },
     updateAnswers: (state, action: PayloadAction<UpdateAnswerDataProps>) => {
       const { questionId, answer, questionType, goalId, activityLevelId } = action.payload;
-      const index = state.answers.findIndex((item) => item.questionId == questionId);
-      if ((questionType == 'goal' && state.answers[index]?.goalId) || (questionType == 'activity_level' && state.answers[index]?.activityLevelId)) {
+      const index = state.answers.findIndex((item) => item.questionId === questionId);
+      if ((questionType === 'goal' && state.answers[index]?.goalId) || (questionType === 'activity_level' && state.answers[index]?.activityLevelId)) {
         state.answers.splice(index, 1);
       }
       if (index !== -1) {
-        const indexOfOptions = state?.answers[index]?.answer.findIndex((item) => JSON.stringify(item) == JSON.stringify(answer));
+        const indexOfOptions = state?.answers[index]?.answer.findIndex((item) => JSON.stringify(item) === JSON.stringify(answer));
         if (indexOfOptions !== -1) {
           if (state.answers[index]?.answer.length > 1) {
             state.answers[index]?.answer.splice(indexOfOptions, 1);
@@ -41,32 +41,32 @@ const questionSlice = createSlice({
             state.answers.splice(index, 1);
           }
         } else {
-          if (questionType == 'goal') {
+          if (questionType === 'goal') {
             state.answers[index] = {
               ...state.answers[index],
               answer: [],
               goalId
             }
-          } else if (questionType == 'activity_level') {
+          } else if (questionType === 'activity_level') {
             state.answers[index] = {
               ...state.answers[index],
               answer: [],
               activityLevelId
             }
-          } else if (questionType == 'multiple_choice') {
+          } else if (questionType === 'multiple_choice') {
             state.answers[index].answer = [...state.answers[index].answer, answer];
           } else {
             state.answers[index].answer = [answer]
           }
         }
       } else {
-        if (questionType == 'goal') {
+        if (questionType === 'goal') {
           state.answers = [...state.answers, {
             questionId,
             answer: [],
             goalId
           }]
-        } else if (questionType == 'activity_level') {
+        } else if (questionType === 'activity_level') {
           state.answers = [...state.answers, {
             questionId,
             answer: [],

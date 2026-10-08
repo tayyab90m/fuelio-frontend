@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut } from "../../methods";
+import { apiDelete, apiGetAll, apiPost, apiPut } from "../../methods";
 import {
   ActivityLevel,
   ActivityLevelResponse,
@@ -31,7 +31,7 @@ const toRestBody = (input: CreateActivityLevelInput | UpdateActivityLevelInput) 
 });
 
 export const allActivityLevelsApi = async (): Promise<ActivityLevelResponse> => {
-  const { data } = await apiGet<{ data: RestActivityLevel[] }>({ path: "/activity-levels" });
+  const { data } = await apiGetAll<RestActivityLevel>({ path: "/activity-levels" });
   return {
     data: {
       allActivityLevels: data.map(toActivityLevel),

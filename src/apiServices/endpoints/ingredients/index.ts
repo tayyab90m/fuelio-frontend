@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut } from '../../methods';
+import { apiDelete, apiGet, apiGetAll, apiPost, apiPut } from '../../methods';
 import {
   CreateIngredientResponse,
   CreateIngredientVariable,
@@ -76,6 +76,6 @@ export const getIngredient = async (id: string): Promise<GetIngredientResponse> 
 };
 
 export const getAllIngredients = async (): Promise<GetAllIngredientsResponse> => {
-  const { data } = await apiGet<{ data: RestIngredient[] }>({ path: '/ingredients' });
+  const { data } = await apiGetAll<RestIngredient>({ path: '/ingredients' });
   return { data: { allIngredients: data.map(toIngredient) } };
 };
