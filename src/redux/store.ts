@@ -1,5 +1,5 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import { persistReducer, persistStore } from "redux-persist";
+import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, persistReducer, persistStore } from "redux-persist";
 import createWebStorage from "redux-persist/es/storage/createWebStorage";
 import { blacklist, whitelist } from "./constant";
 import { userReducer } from "./user/reducer";
@@ -66,6 +66,13 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 export type RootState = ReturnType<typeof appReducer>;
 export const store = configureStore({
     reducer: persistedReducer,
+    // redux-persist's own actions carry functions by design; don't flag them.
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+            },
+        }),
 });
 export const persistor = persistStore(store);
 export type AppDispatch = typeof store.dispatch;
