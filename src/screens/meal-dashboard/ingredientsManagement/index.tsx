@@ -59,6 +59,9 @@ const IngredientSchema = Yup.object().shape({
     .required('Name is required')  // Ensures the name is not empty
     .min(5, 'Name must be at least 5 characters'),  // Ensures the name has a minimum length of 2 characters
 
+  // The backend rejects ingredients without a non-empty description.
+  description: Yup.string().trim().required('Description is required'),
+
   calories: Yup.number()
     .required('Calories is required')  // Ensures calories field is required
     .nullable()
@@ -106,6 +109,7 @@ export function IngredientsConfig() {
 
   const initialValues: CreateIngredientVariable = {
     name: "",
+    description: "",
     calories: undefined,
     protein: undefined,
     fat: undefined,
@@ -357,6 +361,18 @@ export function IngredientsConfig() {
                     />
                     {errors.name && touched.name && (
                       <div className="text-sm text-red-500 mt-1">{errors.name}</div>
+                    )}
+                  </div>
+
+                  <div className="col-span-2 space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Description</label>
+                    <Field
+                      name="description"
+                      placeholder="e.g., Skinless, boneless chicken breast"
+                      className="h-10 px-2 w-full rounded-md border border-gray-200 focus:border-blue-300 focus:ring-blue-200"
+                    />
+                    {errors.description && touched.description && (
+                      <div className="text-sm text-red-500 mt-1">{errors.description}</div>
                     )}
                   </div>
 
