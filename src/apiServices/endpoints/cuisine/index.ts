@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "../../methods";
+import { apiDelete, apiGetAll, apiPatch, apiPost, apiPut } from "../../methods";
 import {
   CreateCuisineMutationResponse,
   CreateCuisineVariables,
@@ -25,7 +25,7 @@ const toCuisine = (record: RestCuisine): Cuisine => ({
 
 // API call to fetch all cuisines
 export const getAllCuisinesApi = async (): Promise<GetAllCuisinesQueryResponse> => {
-  const { data } = await apiGet<{ data: RestCuisine[] }>({ path: "/cuisines" });
+  const { data } = await apiGetAll<RestCuisine>({ path: "/cuisines" });
   return { data: { allCuisines: data.map(toCuisine) } };
 };
 

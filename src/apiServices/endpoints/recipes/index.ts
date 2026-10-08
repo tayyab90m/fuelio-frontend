@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut } from "../../methods";
+import { apiDelete, apiGetAll, apiPost, apiPut } from "../../methods";
 import {
   AllRecipesResponse,
   CreateRecipeInput,
@@ -79,7 +79,7 @@ const toRestBody = (input: CreateRecipeInput) => ({
 });
 
 export const allRecipesApi = async (): Promise<AllRecipesResponse> => {
-  const { data } = await apiGet<{ data: RestRecipe[] }>({ path: "/recipes" });
+  const { data } = await apiGetAll<RestRecipe>({ path: "/recipes" });
   return { data: { allRecipes: data.map(toRecipe) } };
 };
 

@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut } from '../../methods';
+import { apiDelete, apiGetAll, apiPost, apiPut } from '../../methods';
 import {
   CreateUnitResponse,
   CreateUnitVariable,
@@ -13,7 +13,7 @@ import {
 const toUnit = (record: RestUnit): Unit => ({ id: record.id, name: record.name });
 
 export const getAllUnits = async (): Promise<GetAllUnitsResponse> => {
-  const { data } = await apiGet<{ data: RestUnit[] }>({ path: '/units' });
+  const { data } = await apiGetAll<RestUnit>({ path: '/units' });
   return { data: { allUnits: data.map(toUnit) } };
 };
 
