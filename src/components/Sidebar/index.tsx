@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { User, Users, ChevronsLeft, ChevronsRight, Bolt } from 'lucide-react';
+import { Users, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { sidebarItems } from '../../utils/helpers/sidebarItems';
 
 

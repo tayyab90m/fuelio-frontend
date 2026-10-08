@@ -40,7 +40,7 @@ const createInstance = (config: AxiosRequestConfig = {}): AxiosInstance => {
         token &&
         refreshToken &&
         error.response &&
-        error.response.status == tokenExpireCase &&
+        error.response.status === tokenExpireCase &&
         !originalRequest?._retriedAfterRefresh
       ) {
         try {

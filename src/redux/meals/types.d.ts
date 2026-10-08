@@ -1,5 +1,4 @@
-import { AllGoalsResponse, MealTypesProps, MealUnitProps } from "../../interfaces/meal/types";
-import { UserData } from "../../interfaces/user/types";
+import { MealTypesProps, MealUnitProps } from "../../interfaces/meal/types";
 
 export interface MealReducerStates {
     allGeneralTypes: MealTypesProps[];

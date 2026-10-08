@@ -1,10 +1,7 @@
 import React from 'react'
-import Sidebar from '../../components/Sidebar'
 import Avatar1 from '../../assets/images/avatar1.jpg';
 import Avatar2 from '../../assets/images/avatar2.jpg';
-import { useNavigate } from 'react-router';
 const DashboardContainer = () => {
-  const navigate =  useNavigate()
   return (
     <div className=''>
       <header className="pb-5 flex justify-between items-center">
