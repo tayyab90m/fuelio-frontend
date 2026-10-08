@@ -29,6 +29,9 @@ export const onMount = async () => {
     if (response) {
       store.dispatch(setAllQuestions(response.data.allQuestions));
     }
+  } catch {
+    // Already reported by the request layer's error toast; callers don't
+    // await this, so rethrowing would only surface as an unhandled rejection.
   } finally {
     store.dispatch(setIsLoading(false));
   }

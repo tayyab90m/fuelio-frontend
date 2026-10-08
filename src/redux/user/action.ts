@@ -13,6 +13,9 @@ export const onLogin = async (props: loginApiBodyParams, { setSubmitting }: Form
       store.dispatch(setUserData(response.data.login))
       navigate('/dashboard/coach-dashboard')
     }
+  } catch {
+    // Already reported by the request layer's error toast; callers don't
+    // await this, so rethrowing would only surface as an unhandled rejection.
   } finally {
     setSubmitting(false);
   }

@@ -21,6 +21,9 @@ export const onGetAllActivityLevels = async () => {
     store.dispatch(setIsLoading(true));
     const response = await allActivityLevelsApi();
     store.dispatch(setAllActivityLevels(response?.data?.allActivityLevels));
+  } catch {
+    // Already reported by the request layer's error toast; callers don't
+    // await this, so rethrowing would only surface as an unhandled rejection.
   } finally {
     store.dispatch(setIsLoading(false));
   }
@@ -66,6 +69,9 @@ export const onDeleteActivityLevel = async (id: string) => {
       toast.success('Activity level deleted successfully!');
       return response;
     }
+  } catch {
+    // Already reported by the request layer's error toast; callers don't
+    // await this, so rethrowing would only surface as an unhandled rejection.
   } finally {
     store.dispatch(setIsLoading(false));
   }

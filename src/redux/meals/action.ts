@@ -9,6 +9,9 @@ export const onMountAllMealTypes = async () => {
         store.dispatch(setIsLoading(true));
         const response = await allGeneralMealsApi();
         store.dispatch(setAllGeneralTypes(response.data.allGeneralTypes));
+    } catch {
+      // Already reported by the request layer's error toast; callers don't
+      // await this, so rethrowing would only surface as an unhandled rejection.
     } finally {
         store.dispatch(setIsLoading(false));
     }
@@ -29,7 +32,9 @@ export const onDeleteMealType = async (props: GetGeneralMealTypeBodyParams) => {
         if (response.data.deleteGeneralType.success) {
             store.dispatch(removeToAllGeneralTypes(props.id))
         }
-    } finally {
+    } catch {
+      // Already reported by the request layer's error toast; callers don't
+      // await this, so rethrowing would only surface as an unhandled rejection.
     }
 }
 
@@ -47,6 +52,9 @@ export const onGetAllUnits = async () => {
         store.dispatch(setIsLoading(true));
         const response = await getAllUnitsApi();
         store.dispatch(setAllMealUnits(response.data.allUnits));
+    } catch {
+      // Already reported by the request layer's error toast; callers don't
+      // await this, so rethrowing would only surface as an unhandled rejection.
     } finally {
         store.dispatch(setIsLoading(false));
     }
@@ -59,6 +67,9 @@ export const onUpdateMealTypeState = async (id: string, newState: string) => {
         if (!response.data.errors) {
             store.dispatch(updateMealTypeState({ id, state: newState }));
         }
+    } catch {
+      // Already reported by the request layer's error toast; callers don't
+      // await this, so rethrowing would only surface as an unhandled rejection.
     } finally {
         store.dispatch(setIsLoading(false));
     }
