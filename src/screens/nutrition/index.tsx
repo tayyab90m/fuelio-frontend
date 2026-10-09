@@ -10,6 +10,8 @@ const Nutrition = () => {
     if (location.pathname === '/') {
     navigate("/dashboard/coach-dashboard");
     }
+    // Redirect once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
 
   return (

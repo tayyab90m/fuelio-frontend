@@ -23,6 +23,8 @@ const SelectionSection: FC<SelectionSectionProps> = ({ id, options, text, questi
             });
             return () => clearTimeout(timeoutId);
         }
+        // Only a new `number` should trigger this; onHandlePress is re-created every render.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [number]);
 
     const onHandlePress = (item: string) => {

@@ -57,6 +57,8 @@ export function GoalsConfig() {
     if (!error && showModal) {
       setShowModal(false);
     }
+    // Close the dialog when a save finishes (goals refresh) - not when it is merely opened.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error, goals]);
 
   const initialValues: Goal = {
