@@ -1,6 +1,8 @@
-import { apiPost, apiPostForRefreshToken } from "../../methods";
+import { apiGet, apiPost, apiPostForRefreshToken } from "../../methods";
+import { UserObj } from "../../../interfaces/user/types";
 import {
   loginApiBodyParams,
+  registerApiBodyParams,
   loginApiResponseParams,
   RefreshTokenApiRequestParams,
   RefreshTokenApiResponse,
@@ -49,4 +51,29 @@ export const refreshApi = async (
       },
     },
   };
+};
+
+// POST /api/v1/auth/register always creates a "client" account.
+export const registerApi = async (variables: registerApiBodyParams): Promise<loginApiResponseParams> => {
+  const result = await apiPost<RestAuthTokenResponse>({
+    path: "/auth/register",
+    body: { name: variables.name, email: variables.email, password: variables.password },
+  });
+  return {
+    data: {
+      login: {
+        success: true,
+        errors: [],
+        user: result.user,
+        token: result.accessToken,
+        refreshToken: result.refreshToken,
+      },
+    },
+  };
+};
+
+// GET /api/v1/auth/me -> the current user, including their up-to-date role.
+export const meApi = async (): Promise<UserObj> => {
+  const result = await apiGet<{ user: UserObj }>({ path: "/auth/me" });
+  return result.user;
 };

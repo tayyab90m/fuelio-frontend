@@ -1,9 +1,6 @@
 import { lazy } from 'react'
 import { RouteItem } from '../interfaces/routes/types';
 import NewType from '../screens/nutrition/meals/new-type';
-import { useSelector } from 'react-redux';
-import { RootState } from '../redux/store';
-import { Navigate } from 'react-router-dom';
 import { ActivityLevelsConfig } from '../screens/meal-dashboard/activityLevelConfig';
 import { GoalsConfig } from '../screens/meal-dashboard/goalConfig';
 import { RecipesConfig } from '../screens/meal-dashboard/recipes';
@@ -18,6 +15,8 @@ import Categories from '../screens/meal-dashboard/categories';
 import { CuisineConfig } from '../screens/meal-dashboard/cuisine';
 import MealFilter from '../screens/nutrition/meals/meal';
 import DietPlan from '../screens/meal-dashboard/mealGenerator/result';
+import { AuthWrapper, RedirectIfSignedIn, RequireRole } from './guards';
+import Register from '../screens/authentication/register';
 
 const Dashboard = lazy(() => import('../screens/dashboard'));
 const Nutrition = lazy(() => import('../screens/nutrition/index'));
@@ -28,20 +27,14 @@ const MealDashboard = lazy(() => import('../screens/meal-dashboard'))
 
 const Login = lazy(() => import('../screens/authentication/login'));
 
-const AuthWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-
-  const { userData } = useSelector((state: RootState) => state.userReducer);
-
-  if (!userData || !userData?.user?.id) {
-    return <Navigate to="/login" />;
-  }
-
-  return <>{children}</>;
-};
 export const Router: RouteItem[] = [
   {
     path: '/login',
-    element: <Login />,
+    element: <RedirectIfSignedIn><Login /></RedirectIfSignedIn>,
+  },
+  {
+    path: '/register',
+    element: <RedirectIfSignedIn><Register /></RedirectIfSignedIn>,
   },
   {
     path: '/',
@@ -54,30 +47,43 @@ export const Router: RouteItem[] = [
         ),
         children: [
           {
-            path: 'dashboard', element: <MealDashboard />, 
+            path: 'dashboard', element: <MealDashboard />,
             children: [
-              { path: '', element: <DashboardOverview /> },
+              // Available to every signed-in user, including clients.
               {
-                path: 'meal-types', element: <MealTypeLayout />, children: [
-                  { path: '', element: <MealTypes />, },
-                  { path: 'new-type', element: <NewType />, },
-                  { path: 'edit-type/:id', element: <NewType />, },
-                ]
+                path: '',
+                element: <RequireRole roles={['admin', 'coach', 'client']} />,
+                children: [
+                  { path: 'meal-generator', element: <MealGenerator /> },
+                  { path: 'diet-plan', element: <DietPlan /> },
+                ],
               },
-              { path: 'activity-levels', element: <ActivityLevelsConfig /> },
-              { path: 'coach-dashboard', exact: true, element: <Dashboard />},
-              { path: 'goals', element: <GoalsConfig /> },
-              { path: 'recipes', element: <RecipesConfig /> },
-              { path: 'ingredients', element: <IngredientsConfig /> },
-              { path: 'cuisine', element: <CuisineConfig /> },
-              { path: 'categories', element: <Categories /> },
-              { path: 'units', element: <Units /> },
-              { path: 'workout-generator', element: <WorkoutGenerator /> },
-              { path: 'meal-generator', element: <MealGenerator /> },
-              { path: 'meal-filter', element: <MealFilter /> },
-              { path: 'subscriptions', element: <Subscriptions /> },
-              { path: 'diet-plan', element: <DietPlan /> },
-
+              // Content management: coaches and admins only.
+              {
+                path: '',
+                element: <RequireRole roles={['admin', 'coach']} />,
+                children: [
+                  { path: '', element: <DashboardOverview /> },
+                  {
+                    path: 'meal-types', element: <MealTypeLayout />, children: [
+                      { path: '', element: <MealTypes />, },
+                      { path: 'new-type', element: <NewType />, },
+                      { path: 'edit-type/:id', element: <NewType />, },
+                    ]
+                  },
+                  { path: 'activity-levels', element: <ActivityLevelsConfig /> },
+                  { path: 'coach-dashboard', exact: true, element: <Dashboard />},
+                  { path: 'goals', element: <GoalsConfig /> },
+                  { path: 'recipes', element: <RecipesConfig /> },
+                  { path: 'ingredients', element: <IngredientsConfig /> },
+                  { path: 'cuisine', element: <CuisineConfig /> },
+                  { path: 'categories', element: <Categories /> },
+                  { path: 'units', element: <Units /> },
+                  { path: 'workout-generator', element: <WorkoutGenerator /> },
+                  { path: 'meal-filter', element: <MealFilter /> },
+                  { path: 'subscriptions', element: <Subscriptions /> },
+                ],
+              },
             ]
           },
         ],
@@ -86,5 +92,3 @@ export const Router: RouteItem[] = [
     ],
   },
 ];
-
-

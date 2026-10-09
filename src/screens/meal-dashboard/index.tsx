@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { Card } from "../../components/ui/card";
+import { RootState } from "../../redux/store";
+import { Role, effectiveRole, isStaff } from "../../utils/roles";
 import {
   LayoutDashboard,
   Target,
@@ -22,36 +24,56 @@ import {
   LogOut,
 } from "lucide-react";
 
+interface NavItem {
+  name: string;
+  icon: React.ElementType;
+  navigate: string;
+  // Roles that see this item; omitted = everyone signed in.
+  roles?: Role[];
+  // Draws the separator line above the item.
+  divider?: boolean;
+  submenu?: { name: string; icon: React.ElementType; navigate: string }[];
+}
+
+const STAFF: Role[] = ["admin", "coach"];
+
 const MealDashboard = () => {
+  const user = useSelector((state: RootState) => state.userReducer.userData?.user);
+  const role = effectiveRole(user?.role);
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const currentPath = location.pathname.split("/dashboard/")[1] || "";
   const [isOpen, setIsOpen] = useState(true);
   const [expandedMenu, setExpandedMenu] = useState(null);
-  const navigation = [
+  const allNavigation: NavItem[] = [
     {
       name: "Coach Dashboard",
+      roles: STAFF,
       icon: Target,
       navigate: "coach-dashboard",
     },
     {
       name: "Meal Dashboard",
+      roles: STAFF,
       icon: LayoutDashboard,
       navigate: "",
     },
     {
       name: "Activity Levels",
+      roles: STAFF,
       icon: Target,
       navigate: "activity-levels",
     },
     {
       name: "Goals",
+      roles: STAFF,
       icon: Target,
       navigate: "goals",
     },
     {
       name: "Meal Management",
+      roles: STAFF,
       icon: Salad,
       navigate: "meal-management",
       submenu: [
@@ -64,6 +86,7 @@ const MealDashboard = () => {
     },
     {
       name: "Units",
+      roles: STAFF,
       icon: PencilRuler,
       navigate: "units",
     },
@@ -71,16 +94,17 @@ const MealDashboard = () => {
       name: "Meal Plan Generator",
       icon: HandPlatter,
       navigate: "meal-generator",
-      className: "border-t-2 border-grey-300 !rounded-none",
+      divider: true,
     },
     {
       name: "Workout Generator",
+      roles: STAFF,
       icon: Dumbbell,
       navigate: "workout-generator",
-      className: "border-t-2 border-grey-300 !rounded-none",
     },
     {
       name: "Subscriptions",
+      roles: STAFF,
       icon: Boxes,
       navigate: "subscriptions",
     },
@@ -90,6 +114,8 @@ const MealDashboard = () => {
       navigate: "/login",
     },
   ];
+
+  const navigation = allNavigation.filter((item) => !item.roles || item.roles.includes(role));
 
   const toggleSubmenu = (index: any) => {
     setExpandedMenu(expandedMenu === index ? null : index);
@@ -128,7 +154,7 @@ const MealDashboard = () => {
       >
         <div className="flex flex-col h-full">
           <div className="p-4 border-b flex gap-3 cursor-pointer">
-            <span onClick={() => navigate("/dashboard")}>
+            <span onClick={() => navigate(isStaff(role) ? "/dashboard" : "/dashboard/meal-generator")}>
               <ArrowLeft />
             </span>
             <h2 className="text-lg font-semibold">Meal Generator</h2>
@@ -142,13 +168,7 @@ const MealDashboard = () => {
                     currentPath === item.navigate
                       ? "bg-rose-50 text-rose-700"
                       : "text-gray-600 hover:bg-gray-50"
-                  } ${
-                    index === navigation.length - 3
-                      ? "border-t-2 border-rose-500 rounded-none"
-                      : index === navigation.length - 1
-                      ? ""
-                      : ""
-                  } `}
+                  } ${item.divider ? "border-t-2 border-rose-500 rounded-none" : ""} `}
                 >
                   <div className="flex items-center">
                     <item.icon className="w-5 h-5 mr-3" />
@@ -185,6 +205,15 @@ const MealDashboard = () => {
               </div>
             ))}
           </nav>
+          {user && (
+            <div className="border-t p-4 text-sm">
+              <p className="font-medium text-gray-800 truncate">{user.name}</p>
+              <p className="text-gray-500 truncate">{user.email}</p>
+              <span className="mt-1 inline-block rounded-full bg-rose-50 px-2 py-0.5 text-xs font-semibold capitalize text-rose-700">
+                {role}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
