@@ -170,16 +170,11 @@ export const submitAnswerApi = async (variables: SubmitQuestionsRequest): Promis
       submitAnswer: result.userAnswers,
       macros: result.macros,
       macrosDistribution: result.macrosDistribution,
-      // The backend's placeholder calculation returns a plain descriptive
-      // string (see RestSubmitAnswerResponse.mealFramework) rather than a
-      // structured day-by-day meal plan + shopping list - there is no real
-      // data to populate `data`/`shopping_list` with yet, so they're left
-      // empty and the UI (screens/meal-dashboard/mealGenerator/result)
-      // gracefully renders nothing for that section.
       mealFramework: {
-        data: [],
-        shopping_list: {},
+        data: result.mealFramework?.data ?? [],
+        shopping_list: result.mealFramework?.shopping_list ?? {},
       },
+      warnings: result.errors ?? [],
     },
     isLoading: false,
   };

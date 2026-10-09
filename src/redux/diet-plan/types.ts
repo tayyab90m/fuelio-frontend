@@ -22,6 +22,8 @@ export interface ShoppingListItem {
 export interface DietPlanStateProps {
   data?: {
     submitAnswer: any;
+    // Non-fatal planning notes from the backend (e.g. no meal for a slot).
+    warnings?: string[];
     macros: MacrosProps;
     macrosDistribution: MacrosDistributionProps[];
     mealFramework: {

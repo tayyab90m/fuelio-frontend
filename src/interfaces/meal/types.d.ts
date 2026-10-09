@@ -81,7 +81,7 @@ export interface RecipeDataProps {
     description: string;
     prep_time: number;
     cook_time: number;
-    instructions: [];
+    instructions: string[];
     ingredients: IngredientsDataProps[]
 }
 export interface MealDataProps {
