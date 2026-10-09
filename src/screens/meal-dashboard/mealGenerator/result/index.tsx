@@ -60,6 +60,9 @@ export function DietPlanView({ data, title = "Diet Plan", actions }: DietPlanVie
   const weeklyPlan = data.mealFramework?.data ?? [];
   const shoppingItems = Object.values(data.mealFramework?.shopping_list ?? {});
   const warnings = data.warnings ?? [];
+  const restrictions = ((data.submitAnswer as { dietaryRestrictions?: string[] } | undefined)?.dietaryRestrictions ?? []).map(
+    (key) => key.replace(/_/g, " ")
+  );
 
   return (
     <div className="min-h-screen rounded-xl">
@@ -70,6 +73,17 @@ export function DietPlanView({ data, title = "Diet Plan", actions }: DietPlanVie
       </div>
 
       <div className="p-6 bg-white rounded-xl shadow-md">
+        {restrictions.length > 0 && (
+          <p className="mb-4 flex flex-wrap items-center gap-2 text-sm text-gray-600">
+            Dietary restrictions applied:
+            {restrictions.map((restriction) => (
+              <span key={restriction} className="rounded-full bg-green-100 px-3 py-0.5 font-semibold capitalize text-green-800">
+                {restriction}
+              </span>
+            ))}
+          </p>
+        )}
+
         {/* Macros Summary */}
         <MacrosCard macros={data.macros} />
 
@@ -149,6 +163,11 @@ export function DietPlanView({ data, title = "Diet Plan", actions }: DietPlanVie
                             <div>
                               <h4 className="text-lg font-medium text-gray-800">{meal.recipe.name}</h4>
                               <p className="text-sm text-gray-500">{meal.type.toUpperCase()} - {meal.time}</p>
+                              {meal.macros && (
+                                <p className="text-sm text-gray-500">
+                                  {meal.macros.calories} kcal &middot; P {meal.macros.protein}g &middot; C {meal.macros.carbs}g &middot; F {meal.macros.fat}g
+                                </p>
+                              )}
                             </div>
                           </div>
                           <button
@@ -162,6 +181,11 @@ export function DietPlanView({ data, title = "Diet Plan", actions }: DietPlanVie
                         {expandedMeals.includes(mealId) && (
                           <div className="mt-4 space-y-2">
                             <p className="text-gray-600">{meal.recipe.description}</p>
+                            {meal.scale !== undefined && meal.scale !== 1 && (
+                              <p className="text-sm text-gray-500">
+                                Portion adjusted to {Math.round(meal.scale * 100)}% of the base recipe to fit this meal&apos;s calorie target.
+                              </p>
+                            )}
                             <p className="text-sm text-gray-500 flex items-center gap-1">
                               <Clock size={16} className="text-gray-500" /> {meal.recipe.prep_time} min prep, {meal.recipe.cook_time} min cook
                             </p>

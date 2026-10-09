@@ -148,6 +148,21 @@ export const toDietPlanData = (result: RestSubmitAnswerResponse): NonNullable<Di
   warnings: result.errors ?? [],
 });
 
+const DIETARY_RESTRICTIONS = ['vegan', 'vegetarian', 'gluten_free', 'soy_free', 'nut_free'];
+
+// The questionnaire's dietary question ("... dietary restrictions ...") is a
+// multiple-choice list of labels like "Gluten free"; the backend wants keys
+// like "gluten_free". Unanswered or unrecognised answers are simply left out.
+const matchDietaryRestrictions = (): string[] => {
+  const { questions, answers } = store.getState().questionReducer;
+  const question = (questions as any[]).find((q) => q?.text?.toLowerCase?.().includes('dietary'));
+  if (!question) return [];
+  const answer = (answers as any[]).find((a) => a.questionId === question.id);
+  const labels: string[] = Array.isArray(answer?.answer) ? answer.answer : [];
+  const keys = labels.map((label) => label.trim().toLowerCase().replace(/[\s-]+/g, '_'));
+  return Array.from(new Set(keys.filter((key) => DIETARY_RESTRICTIONS.includes(key))));
+};
+
 export const submitAnswerApi = async (variables: SubmitQuestionsRequest): Promise<DietPlanStateProps> => {
   const answers = (variables.input.answers || []) as any[];
   const activityLevelId = answers.find((a) => a.activityLevelId)?.activityLevelId;
@@ -174,7 +189,11 @@ export const submitAnswerApi = async (variables: SubmitQuestionsRequest): Promis
     throw new Error(`Please answer all required questions before submitting (missing: ${missing.join(', ')}).`);
   }
 
-  const body: RestSubmitAnswerBody = { age, sex, heightCm, weightKg, activityLevelId, goalId };
+  const dietaryRestrictions = matchDietaryRestrictions();
+  const body: RestSubmitAnswerBody = {
+    age, sex, heightCm, weightKg, activityLevelId, goalId,
+    ...(dietaryRestrictions.length > 0 ? { dietaryRestrictions } : {}),
+  };
 
   const result = await apiPost<RestSubmitAnswerResponse>({ path: "/questions/submit-answer", body });
 

@@ -107,6 +107,8 @@ export interface RestSubmitAnswerBody {
   weightKg: number;
   activityLevelId: string;
   goalId: string;
+  // vegan | vegetarian | gluten_free | soy_free | nut_free
+  dietaryRestrictions?: string[];
   [extra: string]: unknown;
 }
 
@@ -126,6 +128,9 @@ export interface RestSubmitAnswerResponse {
         type: string;
         time: string;
         is_workout_meal: boolean;
+        // Portion multiplier and the meal's macros at that portion.
+        scale?: number;
+        macros?: { calories: number; protein: number; fat: number; carbs: number };
         recipe: {
           id: string;
           name: string;
