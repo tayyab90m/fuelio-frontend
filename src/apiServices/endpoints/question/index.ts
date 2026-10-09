@@ -135,6 +135,19 @@ const matchSex = (): 'male' | 'female' | undefined => {
   return undefined;
 };
 
+// Shapes a backend plan (from submit-answer or a saved plan's `result`) into
+// the state the diet-plan screens render.
+export const toDietPlanData = (result: RestSubmitAnswerResponse): NonNullable<DietPlanStateProps['data']> => ({
+  submitAnswer: result.userAnswers,
+  macros: result.macros,
+  macrosDistribution: result.macrosDistribution,
+  mealFramework: {
+    data: result.mealFramework?.data ?? [],
+    shopping_list: result.mealFramework?.shopping_list ?? {},
+  },
+  warnings: result.errors ?? [],
+});
+
 export const submitAnswerApi = async (variables: SubmitQuestionsRequest): Promise<DietPlanStateProps> => {
   const answers = (variables.input.answers || []) as any[];
   const activityLevelId = answers.find((a) => a.activityLevelId)?.activityLevelId;
@@ -165,17 +178,5 @@ export const submitAnswerApi = async (variables: SubmitQuestionsRequest): Promis
 
   const result = await apiPost<RestSubmitAnswerResponse>({ path: "/questions/submit-answer", body });
 
-  return {
-    data: {
-      submitAnswer: result.userAnswers,
-      macros: result.macros,
-      macrosDistribution: result.macrosDistribution,
-      mealFramework: {
-        data: result.mealFramework?.data ?? [],
-        shopping_list: result.mealFramework?.shopping_list ?? {},
-      },
-      warnings: result.errors ?? [],
-    },
-    isLoading: false,
-  };
+  return { data: toDietPlanData(result), isLoading: false };
 };
