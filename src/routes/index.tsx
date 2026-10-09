@@ -16,6 +16,7 @@ import { CuisineConfig } from '../screens/meal-dashboard/cuisine';
 import MealFilter from '../screens/nutrition/meals/meal';
 import DietPlan from '../screens/meal-dashboard/mealGenerator/result';
 import { AuthWrapper, RedirectIfSignedIn, RequireRole } from './guards';
+import Users from '../screens/meal-dashboard/users';
 import Register from '../screens/authentication/register';
 
 const Dashboard = lazy(() => import('../screens/dashboard'));
@@ -57,6 +58,12 @@ export const Router: RouteItem[] = [
                   { path: 'meal-generator', element: <MealGenerator /> },
                   { path: 'diet-plan', element: <DietPlan /> },
                 ],
+              },
+              // User management: admins only.
+              {
+                path: '',
+                element: <RequireRole roles={['admin']} />,
+                children: [{ path: 'users', element: <Users /> }],
               },
               // Content management: coaches and admins only.
               {
