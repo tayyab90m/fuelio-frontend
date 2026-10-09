@@ -88,5 +88,7 @@ export interface MealDataProps {
     type: string;
     time: string;
     is_workout_meal: boolean;
+    scale?: number;
+    macros?: { calories: number; protein: number; fat: number; carbs: number };
     recipe: RecipeDataProps
 }
