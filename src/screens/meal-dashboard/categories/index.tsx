@@ -35,11 +35,13 @@ import {
 } from 'lucide-react';
 import { CreateCategoryInput, CategoryWithDates } from '../../../apiServices/endpoints/categories/types';
 import { toast } from 'react-toastify';
+import { onGetAllGoals } from '../../../redux/goals/action';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
 const Categories: FC = () => {
   const {categories,loading} = useSelector((state: RootState) => state.categories);
+  const { goals } = useSelector((state: RootState) => state.goalsReducer);
 
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryWithDates | null>(null);
@@ -64,7 +66,8 @@ const Categories: FC = () => {
 
   const validationSchema = Yup.object({
     name: Yup.string().required('Name is required'),
-    description: Yup.string(),
+    // The backend rejects categories without a description.
+    description: Yup.string().trim().required('Description is required'),
     sortingPriority: Yup.number()
     .min(1, 'Priority must be a positive number') // Ensure the priority is positive
     .integer('Priority must be an integer') // Ensure the priority is an integer
@@ -102,15 +105,12 @@ const Categories: FC = () => {
     validationSchema,
     onSubmit: async (values) => {
       try {
-        if (editingCategory) {
-          await updateCategoryById({
-            id: editingCategory.id,
-            ...values
-          });
-        } else {
-          await createCategory(values);
-        }
-        handleDialogClose();
+        // The actions report failures themselves and return null; keep the
+        // dialog (and what the user typed) open unless the save succeeded.
+        const saved = editingCategory
+          ? await updateCategoryById({ id: editingCategory.id, ...values })
+          : await createCategory(values);
+        if (saved) handleDialogClose();
       } catch (error) {
         toast.error('Failed to save category');
       }
@@ -126,6 +126,7 @@ const Categories: FC = () => {
 
   useEffect(() => {
     fetchCategories();
+    onGetAllGoals();
   }, []);
 
   useEffect(() => {
@@ -199,7 +200,7 @@ const Categories: FC = () => {
               <TableHead className="font-bold text-center py-4 px-4 text-sm text-white">Macros (g)</TableHead>
               <TableHead className="font-bold text-center py-4 px-4 text-sm text-white">Daily Calories</TableHead>
               <TableHead className="font-bold text-center py-4 px-4 text-sm text-white">Meal Swap</TableHead>
-              {/* <TableHead className="font-bold text-center">Goals</TableHead> */}
+              <TableHead className="font-bold text-center py-4 px-4 text-sm text-white">Goals</TableHead>
               <TableHead className="font-bold text-center text-white py-4 px-4 text-sm">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -252,15 +253,13 @@ const Categories: FC = () => {
                     {category.mealSwapEnabled ? 'Enabled' : 'Disabled'}
                   </Badge>
                 </TableCell>
-                {/* <TableCell className="text-center">
-                  <div className="flex flex-wrap gap-1">
-                    {Array.isArray(category.goalIds) && category.goalIds.map(goal => (
-                      <Badge key={typeof goal === 'string' ? goal : goal.id} variant="outline">
-                        {typeof goal === 'string' ? goal : goal.name}
-                      </Badge>
-                    ))}
+                <TableCell className="text-center">
+                  <div className="flex flex-wrap justify-center gap-1">
+                    {category.goalIds?.length ? category.goalIds.map(goal => (
+                      <Badge key={goal.id} variant="outline">{goal.name}</Badge>
+                    )) : <span className="text-gray-400">-</span>}
                   </div>
-                </TableCell> */}
+                </TableCell>
                 <TableCell className="text-center">
                   <div className="flex justify-center items-center gap-2">
                     <Button 
@@ -350,6 +349,34 @@ const Categories: FC = () => {
                   placeholder="Category description" 
                   className="h-10 w-full rounded-md border border-gray-200 focus:border-blue-300 focus:ring-blue-200"
                 />
+                {formik.touched.description && formik.errors.description && (
+                  <div className="text-sm text-red-500 mt-1">{formik.errors.description}</div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Goals</label>
+                <div className="flex flex-wrap gap-4">
+                  {goals?.map((goal) => (
+                    <label key={goal.id} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formik.values.goalIds?.includes(goal.id) ?? false}
+                        onChange={(e) =>
+                          formik.setFieldValue(
+                            'goalIds',
+                            e.target.checked
+                              ? [...(formik.values.goalIds || []), goal.id]
+                              : (formik.values.goalIds || []).filter((id) => id !== goal.id)
+                          )
+                        }
+                        className="h-4 w-4 rounded border-gray-200 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm text-gray-700">{goal.name}</span>
+                    </label>
+                  ))}
+                  {!goals?.length && <span className="text-sm text-gray-400">No goals available yet.</span>}
+                </div>
               </div>
             </div>
 
@@ -462,7 +489,7 @@ const Categories: FC = () => {
                         name="fatMax"
                         type="number" 
                         placeholder="Max"
-                        min="1"
+                        min="0"
                         value={formik.values.fatMax}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
