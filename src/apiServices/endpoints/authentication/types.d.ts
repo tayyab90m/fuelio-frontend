@@ -5,6 +5,11 @@ export interface loginApiBodyParams {
     password: string;
 
 }
+export interface registerApiBodyParams {
+    name: string;
+    email: string;
+    password: string;
+}
 export interface loginApiResponseParams {
     data: {
         login: UserAuthState
