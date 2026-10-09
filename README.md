@@ -37,7 +37,21 @@ cp .env.example .env
 yarn start
 ```
 
-Opens on [http://localhost:3007](http://localhost:3007) (set in the `start` script so it doesn't clash with the backend's port 3000). Sign in with the seeded account described in the backend README, or register a new one.
+Opens on [http://localhost:3007](http://localhost:3007) (set in the `start` script so it doesn't clash with the backend's port 3000). Sign in with one of the seeded accounts listed in the backend README (an admin, a coach and a client), or create a client account on `/register`.
+
+## Roles
+
+The backend decides what each role may do; the UI only mirrors it so people don't see screens that would fail.
+
+| Role | Lands on | Sees |
+|---|---|---|
+| `client` | Meal Plan Generator | The generator and **My Plans** only. Typing a staff URL redirects back. |
+| `coach` | Coach Dashboard | Everything for managing content (goals, meals, recipes, ingredients, ...), plus the generator and My Plans |
+| `admin` | Coach Dashboard | Everything a coach sees, plus **Users** (create users, change roles, delete) |
+
+- `/register` always creates a `client`. Only an admin can promote someone (Users screen).
+- The signed-in user's profile is re-read from `/auth/me` on load, so a role change or an old saved session is picked up. A session with no known role is treated as a client.
+- Route guards live in `src/routes/guards.tsx`; the sidebar filters by role in `src/screens/meal-dashboard/index.tsx`.
 
 ## Scripts
 
@@ -45,7 +59,7 @@ Opens on [http://localhost:3007](http://localhost:3007) (set in the `start` scri
 | --- | --- |
 | `yarn start` | Dev server with hot reload on port 3007 |
 | `yarn build` | Production build into `build/` |
-| `yarn test` | CRA test runner (no frontend tests yet) |
+| `yarn test` | Jest in watch mode (`yarn test:ci` runs once, for CI) |
 | `npx tsc --noEmit` | Type-check |
 | `npx eslint src --ext .ts,.tsx` | Lint (the codebase is warning-free) |
 
@@ -65,7 +79,7 @@ src/
                     units, ingredients, recipes, ...
     nutrition/      meals, meal types, diet plan
   components/       shared UI (shadcn primitives under components/ui)
-  routes/           route table
+  routes/           route table + role guards (guards.tsx)
 ```
 
 ## How it talks to the API
@@ -77,13 +91,35 @@ src/
 
 ## Screens and current limits
 
-Working end to end against the backend: sign in/out, goals, activity levels, categories (including goal links), cuisines, units, ingredients, recipes (with substitutes), meal types, meals, and the diet-plan questionnaire.
+Working end to end against the backend: sign up/in/out, goals, activity levels, categories (including goal links), cuisines, units, ingredients, recipes (with substitutes), meal types, meals, user management, and the plan generator.
 
-Not backed by real data yet:
+**Meal plans.** The questionnaire (including an optional dietary-restrictions question) generates macros, a per-meal split, a 7-day plan and a shopping list. Portions are scaled toward each meal's calorie target and the plan respects dietary restrictions strictly. Plans can be named and saved, and **My Plans** lists, opens, renames and deletes them. Saved plans are snapshots: later edits to meals or recipes don't change them.
 
-- **Workout generator** and **Subscriptions** are static mock screens — the backend has no endpoints for them.
-- The **diet-plan calculation** is a placeholder formula on the backend (Mifflin-St Jeor × activity × goal adjustment). Weekly meal plan and shopping list sections are hidden because the backend doesn't generate them.
+Not finished:
+
+- **Workout generator** and **Subscriptions** are static mock screens (staff only) with no backend.
+- The **calorie/macro formula** is a placeholder on the backend (Mifflin-St Jeor x activity x goal adjustment) pending real nutrition rules.
+- **Create React App is unmaintained**, and `yarn audit` reports many findings in its build tooling (none ship in the browser bundle). Migrating the build to Vite is the recommended follow-up.
+
+## Testing
+
+```bash
+yarn test:ci          # unit tests (roles, route guards, validation, API adapters)
+npx tsc --noEmit
+npx eslint src --ext .ts,.tsx --max-warnings 0
+```
+
+CI (`.github/workflows/ci.yml`) runs type-check, lint with zero warnings allowed, the tests, and a production build (`CI=true`) on every push and pull request to `develop` and `main`. Jest 27 (bundled with CRA 5) can't read packages that only publish ESM/`exports`, so `package.json` maps `axios` and `react-router` to their CommonJS builds for tests.
 
 ## Deployment
 
-`yarn build` produces a static bundle in `build/` that can be served by any static host. Set `REACT_APP_API_URL` to the public backend URL *before* building, and set the backend's `CORS_ORIGIN` to the site's origin.
+`yarn build` produces a static bundle in `build/` that can be served by any static host. Set `REACT_APP_API_URL` to the public backend URL *before* building, and set the backend's `CORS_ORIGIN` to the site's origin (the backend refuses a wildcard in production).
+
+### Docker
+
+```bash
+docker build --build-arg REACT_APP_API_URL=https://api.example.com -t fuelio-frontend .
+docker run -p 8080:8080 fuelio-frontend
+```
+
+The image serves the bundle with nginx (non-root, port 8080): deep links fall back to `index.html`, hashed assets are cached for a year, and `index.html` is never cached. The API URL is baked in at build time, so the build fails if `REACT_APP_API_URL` isn't given. Put it behind TLS.

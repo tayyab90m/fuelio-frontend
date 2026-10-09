@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      # Only needed so the production build can compile; it is not a secret.
+      REACT_APP_API_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - name: Type-check
+        run: npx tsc --noEmit
+      - name: Lint (no warnings allowed)
+        run: npx eslint src --ext .ts,.tsx --max-warnings 0
+      - name: Tests
+        run: yarn test:ci
+      - name: Production build (CI=true turns warnings into errors)
+        run: CI=true yarn build
