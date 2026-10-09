@@ -22,6 +22,7 @@ import {
   UtensilsCrossed,
   Vegan,
   LogOut,
+  Users,
 } from "lucide-react";
 
 interface NavItem {
@@ -107,6 +108,12 @@ const MealDashboard = () => {
       roles: STAFF,
       icon: Boxes,
       navigate: "subscriptions",
+    },
+    {
+      name: "Users",
+      icon: Users,
+      navigate: "users",
+      roles: ["admin"],
     },
     {
       name: "LogOut",
