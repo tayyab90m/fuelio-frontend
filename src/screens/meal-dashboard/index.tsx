@@ -23,6 +23,7 @@ import {
   Vegan,
   LogOut,
   Users,
+  BookMarked,
 } from "lucide-react";
 
 interface NavItem {
@@ -96,6 +97,11 @@ const MealDashboard = () => {
       icon: HandPlatter,
       navigate: "meal-generator",
       divider: true,
+    },
+    {
+      name: "My Plans",
+      icon: BookMarked,
+      navigate: "my-plans",
     },
     {
       name: "Workout Generator",
@@ -172,7 +178,8 @@ const MealDashboard = () => {
                 <button
                   onClick={() => handleClick(item, index)}
                   className={`flex items-center w-full px-4 py-2 rounded-lg text-sm ${
-                    currentPath === item.navigate
+                    currentPath === item.navigate ||
+                    (item.navigate && currentPath.startsWith(`${item.navigate}/`))
                       ? "bg-rose-50 text-rose-700"
                       : "text-gray-600 hover:bg-gray-50"
                   } ${item.divider ? "border-t-2 border-rose-500 rounded-none" : ""} `}

@@ -17,11 +17,22 @@ import {
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import { RootState } from "../../../../redux/store";
+import { DietPlanStateProps } from "../../../../redux/diet-plan/types";
+import { savePlanApi } from "../../../../apiServices/endpoints/dietPlans";
 import MacrosCard from "../macroCard";
 
-export default function DietPlan() {
-  const { data } = useSelector((state: RootState) => state.dietPlanReducer);
+interface DietPlanViewProps {
+  data: NonNullable<DietPlanStateProps["data"]>;
+  title?: string;
+  // Buttons shown on the right of the header (save, rename, delete, ...).
+  actions?: React.ReactNode;
+}
+
+// Renders a generated plan. Used for the freshly generated plan and for plans
+// opened from "My Plans".
+export function DietPlanView({ data, title = "Diet Plan", actions }: DietPlanViewProps) {
 
   // Meal icons mapped by lowercase names for flexibility
   const mealIcons = {
@@ -46,23 +57,6 @@ export default function DietPlan() {
     );
   };
 
-  // The plan only exists in memory (not persisted), so it's gone after a
-  // refresh or when this page is opened directly.
-  if (!data) {
-    return (
-      <div className="p-6 bg-white rounded-xl shadow-md text-center">
-        <h2 className="text-2xl font-bold mb-2">Diet Plan</h2>
-        <p className="text-gray-500 mb-4">No diet plan yet. Answer the questionnaire to generate one.</p>
-        <Link
-          to="/dashboard/meal-generator"
-          className="inline-block bg-primary text-white font-bold px-4 py-2 rounded-lg hover:opacity-90"
-        >
-          Go to Meal Plan Generator
-        </Link>
-      </div>
-    );
-  }
-
   const weeklyPlan = data.mealFramework?.data ?? [];
   const shoppingItems = Object.values(data.mealFramework?.shopping_list ?? {});
   const warnings = data.warnings ?? [];
@@ -70,8 +64,9 @@ export default function DietPlan() {
   return (
     <div className="min-h-screen rounded-xl">
       {/* Header */}
-      <div className="bg-white p-4 mb-4 rounded-xl shadow-md">
-        <h2 className="text-2xl font-bold">Diet Plan</h2>
+      <div className="bg-white p-4 mb-4 rounded-xl shadow-md flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-2xl font-bold">{title}</h2>
+        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
       </div>
 
       <div className="p-6 bg-white rounded-xl shadow-md">
@@ -220,4 +215,71 @@ export default function DietPlan() {
       </div>
     </div>
   );
+}
+
+// The plan that was just generated (kept in memory only), with a button to
+// save it to "My Plans".
+export default function DietPlan() {
+  const { data } = useSelector((state: RootState) => state.dietPlanReducer);
+  const [saving, setSaving] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(null);
+  const [name, setName] = useState("");
+
+  // The plan only exists in memory, so it's gone after a refresh or when this
+  // page is opened directly.
+  if (!data) {
+    return (
+      <div className="p-6 bg-white rounded-xl shadow-md text-center">
+        <h2 className="text-2xl font-bold mb-2">Diet Plan</h2>
+        <p className="text-gray-500 mb-4">No diet plan yet. Answer the questionnaire to generate one.</p>
+        <Link
+          to="/dashboard/meal-generator"
+          className="inline-block bg-primary text-white font-bold px-4 py-2 rounded-lg hover:opacity-90"
+        >
+          Go to Meal Plan Generator
+        </Link>
+      </div>
+    );
+  }
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const saved = await savePlanApi(data.submitAnswer as Record<string, unknown>, name.trim() || undefined);
+      setSavedId(saved.id);
+      toast.success("Plan saved to My Plans");
+    } catch {
+      // Error toast shown by the request layer (e.g. the 50-plan limit).
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const actions = savedId ? (
+    <Link to={`/dashboard/my-plans/${savedId}`} className="font-semibold text-primary hover:underline">
+      Saved - open in My Plans
+    </Link>
+  ) : (
+    <>
+      <input
+        type="text"
+        aria-label="Plan name"
+        placeholder="Name this plan (optional)"
+        maxLength={100}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="h-10 w-56 rounded-md border border-gray-200 px-3 text-sm"
+      />
+      <button
+        type="button"
+        onClick={handleSave}
+        disabled={saving}
+        className="h-10 rounded-lg bg-primary px-4 text-sm font-bold text-white hover:opacity-90 disabled:opacity-60"
+      >
+        {saving ? "Saving..." : "Save plan"}
+      </button>
+    </>
+  );
+
+  return <DietPlanView data={data} actions={actions} />;
 }
