@@ -119,6 +119,45 @@ export interface RestSubmitAnswerResponse {
     description: string;
     macros: { calories: number; protein: number; fat: number; carbs: number };
   }>;
-  mealFramework: string;
+  mealFramework: {
+    data: Array<{
+      day: string;
+      meals: Array<{
+        type: string;
+        time: string;
+        is_workout_meal: boolean;
+        recipe: {
+          id: string;
+          name: string;
+          description: string;
+          prep_time: number;
+          cook_time: number;
+          instructions: string[];
+          ingredients: Array<{
+            id: string;
+            name: string;
+            min_amount: number;
+            base_amount: number;
+            max_amount: number;
+            round_amount: number;
+            unit: string;
+          }>;
+        };
+      }>;
+    }>;
+    shopping_list: Record<
+      string,
+      {
+        id: string;
+        name: string;
+        min_amount: number;
+        base_amount: number;
+        max_amount: number;
+        round_amount: number;
+        unit: string;
+      }
+    >;
+  };
+  // Non-fatal planning warnings, e.g. "No meals are linked to the Lunch meal type".
   errors: string[];
 }

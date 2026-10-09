@@ -65,6 +65,7 @@ export default function DietPlan() {
 
   const weeklyPlan = data.mealFramework?.data ?? [];
   const shoppingItems = Object.values(data.mealFramework?.shopping_list ?? {});
+  const warnings = data.warnings ?? [];
 
   return (
     <div className="min-h-screen rounded-xl">
@@ -115,7 +116,18 @@ export default function DietPlan() {
           </div>
         </div>
 
-        {/* Weekly Meal Plan Section - hidden until the backend returns one */}
+        {warnings.length > 0 && (
+          <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="status">
+            <p className="font-semibold">Heads up</p>
+            <ul className="list-disc pl-5">
+              {warnings.map((warning) => (
+                <li key={warning}>{warning}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Weekly Meal Plan Section - hidden when the backend returns no plan */}
         {(weeklyPlan.length > 0 || shoppingItems.length > 0) && (
         <div className="p-6 bg-gray-100 mt-10 rounded-xl">
           {weeklyPlan.length > 0 && (
