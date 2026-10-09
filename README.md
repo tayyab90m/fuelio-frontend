@@ -1,50 +1,89 @@
-# Fuelio
+# Fuelio — Frontend
 
-Coach dashboard for meal planning, macro tracking, and client nutrition/training plans. REST API client for the companion [fuelio-backend](../fuelio-backend).
+Coach dashboard for meal planning, macro tracking and client nutrition plans. A React single-page app that talks to the [fuelio-backend](https://github.com/tayyab90m/fuelio-backend) REST API.
 
-# Getting Started with Create React App
+## Stack
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+- React 18 + TypeScript, built with Create React App 5
+- Redux Toolkit + `redux-persist` (only the signed-in user is persisted)
+- React Router 7
+- Axios for the REST client (`src/apiServices`)
+- Formik + Yup for forms
+- Tailwind CSS + shadcn/Radix UI components
+- `react-toastify` for notifications
 
-## Available Scripts
+## Getting started
 
-In the project directory, you can run:
+### 1. Run the backend
 
-### `npm start`
+Follow the [backend README](https://github.com/tayyab90m/fuelio-backend#getting-started) (Postgres, migrations, seed). By default it listens on `http://localhost:3000`.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 2. Install and configure
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```bash
+yarn install
+cp .env.example .env
+```
 
-### `npm test`
+| Variable | Purpose | Default in `.env.example` |
+| --- | --- | --- |
+| `REACT_APP_API_URL` | Base URL of the Fuelio backend (no trailing slash) | `http://localhost:3000` |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+`.env` is git-ignored. Create React App only exposes variables prefixed with `REACT_APP_`, and they are baked in at build time — so never put secrets in them.
 
-### `npm run build`
+### 3. Start the app
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+yarn start
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Opens on [http://localhost:3007](http://localhost:3007) (set in the `start` script so it doesn't clash with the backend's port 3000). Sign in with the seeded account described in the backend README, or register a new one.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Scripts
 
-### `npm run eject`
+| Command | What it does |
+| --- | --- |
+| `yarn start` | Dev server with hot reload on port 3007 |
+| `yarn build` | Production build into `build/` |
+| `yarn test` | CRA test runner (no frontend tests yet) |
+| `npx tsc --noEmit` | Type-check |
+| `npx eslint src --ext .ts,.tsx` | Lint (the codebase is warning-free) |
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Project layout
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+src/
+  apiServices/
+    instance/       axios instance, token refresh + session-expiry handling
+    methods/        apiGet / apiGetAll / apiPost / apiPut / apiPatch / apiDelete
+    errorHandling/  turns backend { error: { message } } into one toast
+    endpoints/      one folder per resource (categories, goals, recipes, ...)
+  redux/            one slice + action file per feature
+  screens/
+    authentication/ login / register
+    meal-dashboard/ admin screens: goals, activity levels, categories, cuisines,
+                    units, ingredients, recipes, ...
+    nutrition/      meals, meal types, diet plan
+  components/       shared UI (shadcn primitives under components/ui)
+  routes/           route table
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## How it talks to the API
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- All requests go through `src/apiServices/methods`. Add a new resource by creating a folder under `endpoints/`, calling these helpers, and exposing it through a Redux action.
+- List endpoints are paginated by the backend (`?page=&limit=`, max 100 per page, response `{ data, meta }`). `apiGetAll` walks every page, so screens that need the full list just use it.
+- **Auth:** the access token is sent as a bearer token. On a `401` the axios interceptor makes one shared refresh call (concurrent requests wait for it) and retries; if the refresh fails the user is signed out and sent to `/login` with a single "session expired" notice.
+- **Errors:** the backend always replies `{ error: { message, statusCode } }`; `errorHandling` shows that message as a toast once.
 
-## Learn More
+## Screens and current limits
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Working end to end against the backend: sign in/out, goals, activity levels, categories (including goal links), cuisines, units, ingredients, recipes (with substitutes), meal types, meals, and the diet-plan questionnaire.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Not backed by real data yet:
+
+- **Workout generator** and **Subscriptions** are static mock screens — the backend has no endpoints for them.
+- The **diet-plan calculation** is a placeholder formula on the backend (Mifflin-St Jeor × activity × goal adjustment). Weekly meal plan and shopping list sections are hidden because the backend doesn't generate them.
+
+## Deployment
+
+`yarn build` produces a static bundle in `build/` that can be served by any static host. Set `REACT_APP_API_URL` to the public backend URL *before* building, and set the backend's `CORS_ORIGIN` to the site's origin.

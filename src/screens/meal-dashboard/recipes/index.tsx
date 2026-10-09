@@ -182,6 +182,8 @@ export function RecipesConfig() {
     if (!mealUnits?.length) {
       onGetAllUnits();
     }
+    // Initial load only; units are fetched once if missing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
   useEffect(() => {
@@ -241,6 +243,8 @@ export function RecipesConfig() {
       }
     }
 
+    // Re-fill only when the recipe being edited changes; `formik` is a new object every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editingRecipe]);
 
   const handleAddIngredient = () => {
@@ -779,7 +783,7 @@ export function RecipesConfig() {
                       </Button>
                     </div>
                     {(item.substitutes || []).map((sub, subIndex) => (
-                      <div key={subIndex} className="grid grid-cols-2 md:grid-cols-6 gap-2 items-end">
+                      <div key={subIndex} className="grid grid-cols-2 md:grid-cols-7 gap-2 items-end">
                         <div className="space-y-1 col-span-2">
                           <label className="text-xs text-gray-500">Substitute Ingredient</label>
                           <Select
@@ -824,6 +828,17 @@ export function RecipesConfig() {
                             value={sub.maxAmount}
                             min="0"
                             onChange={(e) => handleSubstituteChange(index, subIndex, 'maxAmount', Number(e.target.value))}
+                            className="h-9 border border-gray-200"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-gray-500">Round to</label>
+                          <Input
+                            type="number"
+                            value={sub.roundAmount}
+                            min="0"
+                            placeholder="e.g. 5"
+                            onChange={(e) => handleSubstituteChange(index, subIndex, 'roundAmount', Number(e.target.value))}
                             className="h-9 border border-gray-200"
                           />
                         </div>

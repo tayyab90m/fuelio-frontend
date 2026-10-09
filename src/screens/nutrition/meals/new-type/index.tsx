@@ -5,7 +5,7 @@ import { onCreateMealType, onUpdateMealType } from '../../../../redux/meals/acti
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import { CreateGeneralMealTypeBodyParams } from '../../../../apiServices/endpoints/meal/types';
-import InputFields from './fields'
+import InputFields, { toMealTypeKey } from './fields'
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/store';
 import moment from 'moment';
@@ -14,7 +14,7 @@ import moment from 'moment';
 const validationSchema = Yup.object({
   name: Yup.string().required('Name is required').min(3, 'Name must be at least 3 characters long'),
   // code: Yup.string().required('Code is required'),
-  // description: Yup.string(),
+  description: Yup.string().required('Description is required'),
   state: Yup.string().required('State is required'),
   proteinPercentage: Yup.number()
     .required('Protein percentage is required')
@@ -58,6 +58,7 @@ const NewType: FC<any> = () => {
         : '';
       setInitialValues({
         ...selectedMealType,
+        name: toMealTypeKey(selectedMealType.name),
         startTime: formattedStartTime,
         endTime: formattedEndTime,
       });

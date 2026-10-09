@@ -26,8 +26,7 @@ const toCategory = (record: RestCategory): CategoryWithDates => ({
     mealSwapEnabled: record.mealSwapEnabled,
     toleranceOfTotalCalories: record.toleranceOfTotalCalories,
     unit: record.unit,
-    // The REST "Category" resource has no relation to Goals.
-    goalIds: [],
+    goalIds: record.goals ?? [],
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
 });
@@ -47,6 +46,7 @@ const toRestBody = (input: CreateCategoryInput) => ({
     mealSwapEnabled: input.mealSwapEnabled || false,
     toleranceOfTotalCalories: input.toleranceOfTotalCalories || 0,
     unit: input.unit || 'g_per_kg_body_weight',
+    goalIds: input.goalIds ?? [],
 });
 
 export const createCategory = async (input: CreateCategoryInput): Promise<CreateCategoryResponse> => {

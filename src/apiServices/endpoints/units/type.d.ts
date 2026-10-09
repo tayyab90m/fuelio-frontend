@@ -39,11 +39,14 @@ export interface DeleteUnitResponse {
 
 export interface CreateUnitVariable {
   name: string;
+  short?: string;
+  equivalentTo?: number;
+  unitType?: string;
+  system?: string;
 }
 
-export interface UpdateUnitVariable {
+export interface UpdateUnitVariable extends CreateUnitVariable {
   id: string;
-  name: string;
 }
 
 // Raw shape returned by the REST backend (GET/POST/PUT /api/v1/units) - see

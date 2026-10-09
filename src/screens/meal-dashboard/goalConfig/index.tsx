@@ -13,6 +13,16 @@ import { store } from "../../../redux/store";
 import { Edit, Plus, Trash } from "lucide-react";
 import { Switch } from "../../../components/ui/switch";
 import * as Yup from 'yup';
+// Empty inputs hold '' (not null, which React warns about for a controlled
+// input); treat that as "missing" so `required` gives the right message
+// rather than a "must be a number" type error.
+const percentage = (label: string) =>
+  Yup.number()
+    .transform((value, original) => (original === '' ? undefined : value))
+    .min(0, `${label} cannot be negative`)
+    .max(100, `${label} cannot exceed 100`)
+    .required(`${label} is required`);
+
 export function GoalsConfig() {
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -23,26 +33,14 @@ export function GoalsConfig() {
     description: Yup.string().required("Description is required"),
     calorieAdjustment: Yup.object().shape({
       type: Yup.string().required("Adjustment type is required"),
-      percentage: Yup.number()
-        .min(0, "Adjustment percentage cannot be negative")
-        .max(100, "Adjustment percentage cannot exceed 100")
-        .required("Adjustment percentage is required")
+      percentage: percentage("Adjustment percentage"),
     }),
     // All three are percentages of daily calories (the backend's diet-plan
     // calculation splits calories by them), so they must total 100.
     macroRatios: Yup.object().shape({
-      protein: Yup.number()
-        .min(0, "Protein percentage cannot be negative")
-        .max(100, "Protein percentage cannot exceed 100")
-        .required("Protein percentage is required"),
-      fats: Yup.number()
-        .min(0, "Fats percentage cannot be negative")
-        .max(100, "Fats percentage cannot exceed 100")
-        .required("Fats percentage is required"),
-      carbs: Yup.number()
-        .min(0, "Carbs percentage cannot be negative")
-        .max(100, "Carbs percentage cannot exceed 100")
-        .required("Carbs percentage is required")
+      protein: percentage("Protein percentage"),
+      fats: percentage("Fats percentage"),
+      carbs: percentage("Carbs percentage"),
     }).test("sums-to-100", "Protein, fats and carbs must add up to 100%", (ratios) => {
       const values = [ratios?.protein, ratios?.fats, ratios?.carbs];
       if (values.some((v) => v === null || v === undefined || Number.isNaN(v))) return true;
@@ -59,6 +57,8 @@ export function GoalsConfig() {
     if (!error && showModal) {
       setShowModal(false);
     }
+    // Close the dialog when a save finishes (goals refresh) - not when it is merely opened.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error, goals]);
 
   const initialValues: Goal = {
@@ -66,12 +66,12 @@ export function GoalsConfig() {
     description: "",
     calorieAdjustment: {
       type: "deficit",
-      percentage: null,
+      percentage: '' as unknown as number,
     },
     macroRatios: {
-      protein: null,
-      fats: null,
-      carbs: null,
+      protein: '' as unknown as number,
+      fats: '' as unknown as number,
+      carbs: '' as unknown as number,
     },
     state: 'unpublished'
   };
