@@ -19,6 +19,7 @@ import { onGetAllRecipes } from '../../../redux/recipes/action';
 import { mealValidationSchema } from '../../../utils/validation/meals/validation';
 import { onGetIngredients } from '../../../redux/ingredients/action';
 import { toast } from 'react-toastify';
+import { formatMealTypeName } from '../../../utils/helpers/formatName';
 
 function MealFilter() {
   const { meals } = useSelector((state: RootState) => state.mealFilter);
@@ -167,21 +168,11 @@ function MealFilter() {
           fat: totalNutrients?.fat,
         };
 
-        // Call the API to update the meal
-        await onUpdateMeal(updateInput);
-
-        // Show success toast after successful update
-        toast.success('Meal updated successfully!', {
-          position: 'top-right',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          draggable: true,
-          progress: undefined,
-        });
+        // The action reports success/failure itself (toast); on failure keep
+        // the dialog open so what the user typed isn't lost.
+        if (!(await onUpdateMeal(updateInput))) return;
       } else {
-        // Call the API to create a new meal
-        await onCreateMeal({
+        const created = await onCreateMeal({
           name: values.name,
           description: values.description,
           categoryIds: values.categoryIds,
@@ -192,16 +183,7 @@ function MealFilter() {
           carbs: totalNutrients?.carbs,
           fat: totalNutrients?.fat,
         });
-
-        // Show success toast after successful creation
-        toast.success('Meal created successfully!', {
-          position: 'top-right',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          draggable: true,
-          progress: undefined,
-        });
+        if (!created) return;
       }
 
       // Close the modal and reset the form after successful submission
@@ -609,7 +591,7 @@ function MealFilter() {
                       <div className="flex capitalize gap-1 flex-wrap">
                         {meal.generalTypes.map((type) => (
                           <Badge key={type.id} variant="outline">
-                            {type.name}
+                            {formatMealTypeName(type.name)}
                           </Badge>
                         ))}
                       </div>
@@ -789,7 +771,7 @@ function MealFilter() {
                             const type = allGeneralTypes.find(t => t.id === id);
                             return (
                               <span key={id} className="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded-full">
-                                {type?.name}
+                                {formatMealTypeName(type?.name)}
                               </span>
                             );
                           })}
@@ -814,7 +796,7 @@ function MealFilter() {
                                   className="mr-2"
                                 />
                                 <label htmlFor={`checkbox-${type.id}`} className="text-sm text-gray-700">
-                                  {type.name}
+                                  {formatMealTypeName(type.name)}
                                 </label>
                               </div>
                             ))}

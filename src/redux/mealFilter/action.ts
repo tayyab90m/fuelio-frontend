@@ -43,12 +43,14 @@ export const onCreateMeal = async (input: CreateMealInput) => {
     store.dispatch(setCreateMeal(response));
     if (response?.data?.createMeal?.meal) {
       toast.success('Meal created successfully');
+      return true;
     }
   } catch (error) {
     toast.error('Failed to create meal');
   } finally {
     store.dispatch(setLoading(false));
   }
+  return false;
 };
 
 export const onUpdateMeal = async (params: UpdateMealInputData) => {
@@ -62,6 +64,12 @@ export const onUpdateMeal = async (params: UpdateMealInputData) => {
         categoryIds: params.categoryIds,
         generalTypeIds: params.generalTypeIds,
         recipeIds: params.recipeIds || [], // Default to an empty array if not provided
+        // A meal's macros are derived from its recipes, so they must be
+        // resent when the recipes change or the stored totals go stale.
+        calories: params.calories,
+        protein: params.protein,
+        carbs: params.carbs,
+        fat: params.fat,
       },
     };
     const response = await updateMealApi(payload);
@@ -70,12 +78,14 @@ export const onUpdateMeal = async (params: UpdateMealInputData) => {
       store.dispatch(setUpdateMeal(response));
       toast.success('Meal updated successfully');
       await onGetAllMeals();
+      return true;
     }
   } catch (error) {
     toast.error('Failed to update meal');
   } finally {
     store.dispatch(setLoading(false));
   }
+  return false;
 };
 
 export const onDeleteMeal = async (id: string) => {
