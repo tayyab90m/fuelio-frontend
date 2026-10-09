@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router';
 import { Button } from '../../../components/ui/button';
 import { Edit, Trash } from 'lucide-react';
 import { Switch } from '../../../components/ui/switch';
+import { formatMealTypeName } from '../../../utils/helpers/formatName';
 
 interface ExtendedMealTypeProps extends MealTypesProps {
   setIsEdit: (value: boolean) => void;
@@ -62,7 +63,7 @@ const MealTypeCard: FC<ExtendedMealTypeProps> = ({
   return (
     <TableRow className="hover:bg-gray-100 transition-all">
       <TableCell className="px-4 py-3 text-sm font-semibold text-secondary capitalize">
-        {name}
+        {formatMealTypeName(name)}
       </TableCell>
       
       <TableCell className="px-4 py-3 text-sm text-gray-700">
