@@ -84,9 +84,7 @@ export interface GetAllCategoriesResponse {
 // Raw shape returned/accepted by the REST backend (GET/POST/PUT
 // /api/v1/categories) - see
 // fitness-dashboard-backend/src/modules/categories/categories.schema.ts.
-// Note: the nutrition-plan "Category" resource has no relation to Goals on
-// the new backend (goalIds is a legacy GraphQL-era field, kept in the
-// frontend types/UI but never sent to or read from the server).
+// Responses include the linked `goals`; create/update accept `goalIds`.
 export interface RestCategory {
     id: string;
     name: string;
@@ -103,6 +101,7 @@ export interface RestCategory {
     mealSwapEnabled: boolean;
     toleranceOfTotalCalories: number;
     unit: string;
+    goals: Array<{ id: string; name: string }>;
     createdAt: string;
     updatedAt: string;
 }
