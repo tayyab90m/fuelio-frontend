@@ -149,6 +149,8 @@ const Categories: FC = () => {
         goalIds: editingCategory?.goalIds?.map(goal => goal?.id) || []
       });
     }
+    // Re-fill only when the category being edited changes; `formik` is a new object every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editingCategory]);
 
   const handleDelete = async (id: string) => {

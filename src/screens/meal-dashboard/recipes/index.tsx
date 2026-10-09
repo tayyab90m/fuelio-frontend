@@ -182,6 +182,8 @@ export function RecipesConfig() {
     if (!mealUnits?.length) {
       onGetAllUnits();
     }
+    // Initial load only; units are fetched once if missing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
   useEffect(() => {
@@ -241,6 +243,8 @@ export function RecipesConfig() {
       }
     }
 
+    // Re-fill only when the recipe being edited changes; `formik` is a new object every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editingRecipe]);
 
   const handleAddIngredient = () => {
